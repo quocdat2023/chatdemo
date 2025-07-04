@@ -1,0 +1,10 @@
+Flask
+pymongo
+google-generativeai
+pyyaml
+langchain
+sentence-transformers
+faiss-cpu
+torch
+numpy
+boto3  # Add if needed

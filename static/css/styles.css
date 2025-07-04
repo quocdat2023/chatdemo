@@ -1,0 +1,39 @@
+.bg-primary {
+    background-color: #2E8B57 !important;
+    ;
+}
+
+:root {
+    --bs-primary-rgb: #2E8B57 !important;
+    /* Màu nguyên thủy */
+    --custom-primary-rgb: #2E8B57 !important;
+}
+
+/* Giữ nguyên màu khi đổi Light/Dark Mode */
+[data-bs-theme="light"],
+[data-bs-theme="dark"] {
+    --bs-primary-rgb: var(--custom-primary-rgb) !important;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.fa-gear1 {
+    animation: rotate 2s linear infinite;
+}
+
+.ctext-content {
+    text-align: left;
+    /* Căn lề trái */
+}
+
+.card-header {
+    background-color: #f8f9fa !important;
+}

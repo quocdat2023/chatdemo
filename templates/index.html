@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalMind</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app" id="app">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title-row">
+                    <h2 data-translate="chatHistory">Lịch Sử Trò Chuyện</h2>
+                    <button class="close-sidebar-btn" id="closeSidebarBtn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i>
+                    <span data-translate="newConversation">Hội Thoại Mới</span>
+                </button>
+            </div>
+            
+            <div class="conversations-list" id="conversationsList">
+                <div class="empty-conversations">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square h-12 w-12 text-gray-300 mx-auto mb-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <p data-translate="noConversations">Chưa có hội thoại nào</p>
+                    <small data-translate="startNewChat">Bắt đầu một cuộc trò chuyện mới để bắt đầu</small>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="controls">
+                    <button class="control-btn" id="themeToggle" title="Chuyển đổi chủ đề">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <select class="language-select" id="languageSelect">
+                        <option value="en">English</option>
+                        <option value="vi" selected>Tiếng Việt</option>
+                    </select>
+                </div>
+                <div class="footer-text">
+                    <p data-translate="appName">LegalMind</p>
+                    <small data-translate="poweredBy">Được cung cấp bởi Công nghệ RAG</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-area">
+            <!-- Header -->
+            <div class="chat-header">
+                <button class="menu-btn" id="menuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="header-info">
+                    <div class="bot-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="header-text">
+                        <h1 data-translate="appTitle">LegalMind</h1>
+                        <p data-translate="appSubtitle">Đặt câu hỏi về các chủ đề pháp lý và nhận được những góc nhìn chuyên sâu</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-section" id="welcomeSection">
+                    <div class="welcome-icon">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles h-8 w-8 text-white"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+                    </div>
+                    <h2 data-translate="welcomeTitle">Chào mừng đến với LegalMind</h2>
+                    <p data-translate="welcomeText">Tôi ở đây để giúp bạn hiểu các khái niệm pháp lý, phân tích hợp đồng và cung cấp thông tin chuyên sâu về các lĩnh vực pháp luật khác nhau. Hãy hỏi tôi bất cứ điều gì về các chủ đề pháp lý, tôi sẽ cung cấp hướng dẫn chi tiết và chuyên nghiệp.</p>
+                    
+                    <div class="suggested-questions" id="suggestedQuestions">
+                        <h3 data-translate="popularQuestions">Câu Hỏi Phổ Biến</h3>
+                        <div class="questions-grid">
+                            <button class="question-btn" data-question="Các yếu tố chính của một hợp đồng hợp lệ là gì?">
+                                <i class="fas fa-file-contract"></i>
+                                <span data-translate="question1">Các yếu tố chính của một hợp đồng hợp lệ là gì?</span>
+                            </button>
+                            <button class="question-btn" data-question="Giải thích sự khác biệt giữa luật dân sự và luật hình sự">
+                                <i class="fas fa-balance-scale"></i>
+                                <span data-translate="question2">Giải thích sự khác biệt giữa luật dân sự và luật hình sự</span>
+                            </button>
+                            <button class="question-btn" data-question="Luật sở hữu trí tuệ là gì?">
+                                <i class="fas fa-lightbulb"></i>
+                                <span data-translate="question3">Luật sở hữu trí tuệ là gì?</span>
+                            </button>
+                            <button class="question-btn" data-question="Việc chấm dứt hợp đồng hoạt động như thế nào?">
+                                <i class="fas fa-file-signature"></i>
+                                <span data-translate="question4">Việc chấm dứt hợp đồng hoạt động như thế nào?</span>
+                            </button>
+                            <button class="question-btn" data-question="Nghĩa vụ ủy thác trong luật doanh nghiệp là gì?">
+                                <i class="fas fa-building"></i>
+                                <span data-translate="question5">Nghĩa vụ ủy thác trong luật doanh nghiệp là gì?</span>
+                            </button>
+                            <button class="question-btn" data-question="Giải thích các điều khoản bất khả kháng">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span data-translate="question6">Giải thích các điều khoản bất khả kháng</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="messages" id="messages"></div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <form class="input-form" id="inputForm">
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="messageInput" 
+                            placeholder="Đặt câu hỏi về các chủ đề pháp lý..."
+                            data-translate-placeholder="inputPlaceholder"
+                            rows="1"
+                        ></textarea>
+                        <button type="submit" id="sendBtn" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+                <p class="input-hint">
+                    <span data-translate="inputHint">Nhấn Enter để gửi, Shift+Enter để xuống dòng</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <script>
+    // Application state
+let currentUser = null;
+let conversations = [];
+let currentConversationId = null;
+let messages = [];
+let isLoading = false;
+
+// DOM elements
+let sidebar, mobileOverlay, menuBtn, closeSidebarBtn, newChatBtn, conversationsList, 
+    messagesContainer, messagesDiv, welcomeSection, suggestedQuestionsElement, 
+    inputForm, messageInput, sendBtn, themeToggle, languageSelect;
+
+// Translation dictionary
+const translations = {
+    en: {
+        chatHistory: 'Chat History',
+        newConversation: 'New Conversation',
+        noConversations: 'No conversations yet',
+        startNewChat: 'Start a new chat to get started',
+        message: 'message',
+        messages: 'messages',
+        relatedQuestions: 'Related Questions',
+        legalReferences: 'Legal References',
+        matchScore: 'Match Score',
+        analyzing: 'Analyzing...',
+        errorMessage: 'An error occurred. Please try again.',
+        appName: 'Legal Assistant AI',
+        poweredBy: 'Powered by RAG Technology',
+        appTitle: 'Legal Assistant AI',
+        appSubtitle: 'Ask about legal topics and get in-depth insights',
+        welcomeTitle: 'Welcome to Legal Assistant AI',
+        welcomeText: 'I am here to help you understand legal concepts, analyze contracts, and provide insights across various legal domains. Ask me anything about legal topics, and I will provide detailed and professional guidance.',
+        popularQuestions: 'Popular Questions',
+        question1: 'What are the essential elements of a valid contract?',
+        question2: 'Explain the difference between civil law and criminal law',
+        question3: 'What is intellectual property law?',
+        question4: 'How does contract termination work?',
+        question5: 'What are fiduciary duties in corporate law?',
+        question6: 'Explain force majeure clauses',
+        inputPlaceholder: 'Ask about legal topics...',
+        inputHint: 'Press Enter to send, Shift+Enter for new line'
+    },
+    vi: {
+        chatHistory: 'Lịch Sử Trò Chuyện',
+        newConversation: 'Hội Thoại Mới',
+        noConversations: 'Chưa có hội thoại nào',
+        startNewChat: 'Bắt đầu hội thoại mới để tiếp tục',
+        message: 'tin nhắn',
+        messages: 'tin nhắn',
+        relatedQuestions: 'Câu Hỏi Liên Quan',
+        legalReferences: 'Tài Liệu Pháp Lý',
+        matchScore: 'Độ Khớp',
+        analyzing: 'Đang phân tích...',
+        errorMessage: 'Có lỗi xảy ra. Vui lòng thử lại.',
+        appName: 'LegalMind',
+        poweredBy: 'Được cung cấp bởi Công nghệ RAG',
+        appTitle: 'LegalMind',
+        appSubtitle: 'Đặt câu hỏi về các chủ đề pháp lý và nhận được những góc nhìn chuyên sâu',
+        welcomeTitle: 'Chào mừng đến với LegalMind',
+        welcomeText: 'Tôi ở đây để giúp bạn hiểu các khái niệm pháp lý, phân tích hợp đồng và cung cấp thông tin chuyên sâu về các lĩnh vực pháp luật khác nhau. Hãy hỏi tôi bất cứ điều gì về các chủ đề pháp lý, tôi sẽ cung cấp hướng dẫn chi tiết và chuyên nghiệp.',
+        popularQuestions: 'Câu Hỏi Phổ Biến',
+        question1: 'Các yếu tố chính của một hợp đồng hợp lệ là gì?',
+        question2: 'Giải thích sự khác biệt giữa luật dân sự và luật hình sự',
+        question3: 'Luật sở hữu trí tuệ là gì?',
+        question4: 'Việc chấm dứt hợp đồng hoạt động như thế nào?',
+        question5: 'Nghĩa vụ ủy thác trong luật doanh nghiệp là gì?',
+        question6: 'Giải thích các điều khoản bất khả kháng',
+        inputPlaceholder: 'Đặt câu hỏi về các chủ đề pháp lý...',
+        inputHint: 'Nhấn Enter để gửi, Shift+Enter để xuống dòng'
+    }
+};
+
+function convertToVietnamTime(timestamp) {
+    // Tạo đối tượng ngày từ dấu thời gian
+    let date = new Date(timestamp);
+
+    // Chuyển đổi sang múi giờ Việt Nam (GMT+7)
+    let options = { timeZone: 'Asia/Ho_Chi_Minh', timeStyle: 'short', dateStyle: 'short' };
+    let vietnamTime = date.toLocaleString('vi-VN', options);
+    
+    return vietnamTime;
+}
+
+
+// Authentication functions
+async function checkSession() {
+    try {
+        const response = await fetch('/check_session');
+        const data = await response.json();
+        if (data.logged_in) {
+            currentUser = data.username;
+            loadConversations();
+            renderUserInfo();
+        } else {
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        console.error('Error checking session:', error);
+        window.location.href = '/login';
+    }
+}
+
+async function logout() {
+    try {
+        const response = await fetch('/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+            currentUser = null;
+            conversations = [];
+            currentConversationId = null;
+            messages = [];
+            renderConversations();
+            renderMessages();
+            renderUserInfo();
+            window.location.href = '/login';
+        } else {
+            alert('Lỗi khi đăng xuất');
+        }
+    } catch (error) {
+        alert('Lỗi khi đăng xuất');
+    }
+}
+
+// Conversation management
+async function loadConversations() {
+    if (!currentUser) return;
+    try {
+        const response = await fetch('/conversations');
+        const data = await response.json();
+        if (response.ok) {
+            conversations = data;
+            renderConversations();
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        console.error('Error loading conversations:', error);
+    }
+}
+
+async function loadConversation(conversationId) {
+    if (!currentUser) {
+        window.location.href = '/login';
+        return;
+    }
+    try {
+        const response = await fetch(`/conversation/${conversationId}`);
+        const data = await response.json();
+        if (response.ok) {
+            currentConversationId = conversationId;
+            messages = data.messages;
+            renderMessages();
+            closeSidebar();
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        console.error('Error loading conversation:', error);
+    }
+}
+
+async function deleteConversation(conversationId) {
+    if (!currentUser) {
+        window.location.href = '/login';
+        return;
+    }
+    try {
+        const response = await fetch(`/conversation/${conversationId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (response.ok) {
+            conversations = conversations.filter(conv => conv.id !== conversationId);
+            if (currentConversationId === conversationId) {
+                currentConversationId = null;
+                messages = [];
+                renderMessages();
+            }
+            renderConversations();
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        console.error('Error deleting conversation:', error);
+    }
+}
+
+function createNewConversation() {
+    if (!currentUser) {
+        window.location.href = '/login';
+        return;
+    }
+    currentConversationId = null;
+    messages = [];
+    renderMessages();
+    closeSidebar();
+}
+
+function selectConversation(conversationId) {
+    if (!currentUser) {
+        window.location.href = '/login';
+        return;
+    }
+    loadConversation(conversationId);
+}
+
+function updateConversationTitle(conversationId, newTitle, messageCount) {
+    const conversation = conversations.find(conv => conv.id === conversationId);
+    if (conversation) {
+        if (conversation.message_count === 0) {
+            conversation.title = newTitle.slice(0, 50) + (newTitle.length > 50 ? '...' : '');
+        }
+        conversation.message_count = messageCount;
+        conversation.timestamp = new Date().toISOString();
+        renderConversations();
+    }
+}
+
+function renderConversations() {
+    if (!conversationsList) return;
+    if (!currentUser || conversations.length === 0) {
+        conversationsList.innerHTML = `
+            <div class="empty-conversations">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square h-12 w-12 text-gray-300 mx-auto mb-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <p data-translate="noConversations">${translate('noConversations')}</p>
+                <small data-translate="startNewChat">${translate('startNewChat')}</small>
+            </div>
+        `;
+        return;
+    }
+
+    conversationsList.innerHTML = conversations.map(conversation => `
+        <div class="conversation-item ${conversation.id === currentConversationId ? 'active' : ''}" 
+             data-conversation-id="${conversation.id}">
+            <div class="conversation-title">${conversation.title}</div>
+            <div class="conversation-meta">
+                <span>${conversation.message_count} ${conversation.message_count === 1 ? translate('message') : translate('messages')}</span>
+                <span>•</span>
+                <span>${formatTimestamp(new Date(conversation.timestamp).getTime() + 7 * 60 * 60 * 1000)}</span>
+            </div>
+            <button class="delete-conversation" data-conversation-id="${conversation.id}">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `).join('');
+
+    conversationsList.querySelectorAll('.conversation-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (!e.target.closest('.delete-conversation')) {
+                selectConversation(item.dataset.conversationId);
+            }
+        });
+    });
+
+    conversationsList.querySelectorAll('.delete-conversation').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteConversation(btn.dataset.conversationId);
+        });
+    });
+}
+
+// Message management
+function addMessage(type, content, sources = null, relatedQuestions = null, isTyping = false) {
+    if (!messagesDiv) return;
+    const message = {
+        id: Date.now().toString() + (isTyping ? '-typing' : ''),
+        type,
+        content,
+        timestamp: new Date().toISOString(),
+        sources,
+        relatedQuestions,
+        isTyping
+    };
+    
+    if (isTyping) {
+        messages = messages.filter(msg => !msg.isTyping);
+    }
+    
+    messages.push(message);
+    renderMessages();
+    
+    return message.id;
+}
+
+function removeMessage(messageId) {
+    if (!messagesDiv) return;
+    messages = messages.filter(msg => msg.id !== messageId);
+    renderMessages();
+}
+
+function renderMessages() {
+    if (!messagesDiv) return;
+    const hasMessages = messages.length > 0;
+    const hasConversation = currentConversationId !== null;
+    
+    welcomeSection.style.display = hasMessages ? 'none' : 'block';
+    
+    if (!hasMessages && !hasConversation) {
+        suggestedQuestionsElement.style.display = 'block';
+        const currentLang = getCurrentLanguage();
+        suggestedQuestionsElement.innerHTML = `
+            <h3 data-translate="popularQuestions">${translate('popularQuestions')}</h3>
+            <div class="questions-grid">
+                <button class="question-btn" data-question="${translations[currentLang].question1}">
+                    <i class="fas fa-file-contract"></i>
+                    <span>${translations[currentLang].question1}</span>
+                </button>
+                <button class="question-btn" data-question="${translations[currentLang].question2}">
+                    <i class="fas fa-balance-scale"></i>
+                    <span>${translations[currentLang].question2}</span>
+                </button>
+                <button class="question-btn" data-question="${translations[currentLang].question3}">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>${translations[currentLang].question3}</span>
+                </button>
+                <button class="question-btn" data-question="${translations[currentLang].question4}">
+                    <i class="fas fa-file-signature"></i>
+                    <span>${translations[currentLang].question4}</span>
+                </button>
+                <button class="question-btn" data-question="${translations[currentLang].question5}">
+                    <i class="fas fa-building"></i>
+                    <span>${translations[currentLang].question5}</span>
+                </button>
+                <button class="question-btn" data-question="${translations[currentLang].question6}">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>${translations[currentLang].question6}</span>
+                </button>
+            </div>
+        `;
+        suggestedQuestionsElement.querySelectorAll('.question-btn').forEach(btn => {
+            btn.addEventListener('click', () => sendMessage(btn.dataset.question));
+        });
+    } else {
+        suggestedQuestionsElement.style.display = 'none';
+    }
+
+    if (!hasMessages) {
+        messagesDiv.innerHTML = '';
+        return;
+    }
+
+    messagesDiv.innerHTML = messages.map(message => {
+        if (message.isTyping) {
+            return `
+                <div class="message assistant fade-in">
+                    <div class="message-content">
+                        <div class="message-wrapper">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <div class="typing-indicator">
+                                    <div class="typing-dots">
+                                        <div class="typing-dot"></div>
+                                        <div class="typing-dot"></div>
+                                        <div class="typing-dot"></div>
+                                    </div>
+                                    <span>${translate('analyzing')}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const sourcesHtml = message.sources ? `
+            <div class="message-sources">
+                <div class="sources-title">${translate('legalReferences')}</div>
+                ${message.sources.map(source => `
+                    <div class="source-item">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <i class="fas fa-file-text"></i>
+                                <div class="source-details">
+                                    <div class="source-name">${source.file}</div>
+                                    <div class="source-excerpt">"${source.text.slice(0, 150) + '...'}"</div>
+                                </div>
+                            </div>
+                            <div class="source-meta">
+                                <div class="source-score">${source.distance.toFixed(4)} ${translate('matchScore')}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        ` : '';
+
+        const relatedQuestionsHtml = message.relatedQuestions ? `
+             <div class="related-questions">
+                        <div class="sources-title">${translate('relatedQuestions')}</div>
+                        <div class="questions-grid">
+                             ${message.relatedQuestions.map(q => `
+                                <button class="question-btn" data-question="${q.question}">
+                                    <i class="fa-solid fa-circle-question"></i>
+                                    <span>${q.question}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+        ` : '';
+
+        return `
+            <div class="message ${message.type} fade-in">
+                <div class="message-content">
+                    <div class="message-wrapper">
+                        <div class="message-avatar">
+                            <i class="fas ${message.type === 'user' ? 'fa-user' : 'fa-robot'}"></i>
+                        </div>
+                        <div class="message-bubble">
+                            <div class="message-text">${message.content}</div>
+                            ${sourcesHtml}
+                            ${relatedQuestionsHtml}
+                            <div class="message-timestamp">${formatTimestamp(new Date(message.timestamp).getTime() + 7 * 60 * 60 * 1000)}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    messagesDiv.querySelectorAll('.question-btn').forEach(btn => {
+        btn.addEventListener('click', () => sendMessage(btn.dataset.question));
+    });
+}
+
+async function sendMessage(content) {
+    if (!content.trim() || isLoading || !currentUser) {
+        if (!currentUser) window.location.href = '/login';
+        return;
+    }
+
+    const messageData = { question: content };
+    if (currentConversationId) {
+        messageData.conversation_id = currentConversationId;
+    }
+
+    addMessage('user', content);
+    const messageCount = messages.filter(msg => !msg.isTyping).length;
+    updateConversationTitle(currentConversationId, content, messageCount);
+
+    isLoading = true;
+    updateSendButton();
+
+    const typingId = addMessage('assistant', '', null, null, true);
+
+    try {
+        const response = await fetch('/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(messageData)
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            removeMessage(typingId);
+            currentConversationId = data.conversation_id;
+            addMessage('assistant', data.final_response, data.top_banan_documents, data.related_questions);
+            loadConversations();
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        removeMessage(typingId);
+        addMessage('assistant', translate('errorMessage'));
+    } finally {
+        isLoading = false;
+        updateSendButton();
+    }
+}
+
+// Utility functions
+function translate(key) {
+    const lang = getCurrentLanguage();
+    return translations[lang][key] || key;
+}
+
+function getCurrentLanguage() {
+    return languageSelect ? languageSelect.value : 'vi';
+}
+
+function setLanguage(lang) {
+    if (languageSelect) languageSelect.value = lang;
+    document.querySelectorAll('[data-translate]').forEach(element => {
+        const key = element.dataset.translate;
+        element.textContent = translate(key);
+    });
+    document.querySelectorAll('[data-translate-placeholder]').forEach(element => {
+        const key = element.dataset.translatePlaceholder;
+        element.placeholder = translate(key);
+    });
+    renderConversations();
+    renderMessages();
+}
+
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString(getCurrentLanguage() === 'vi' ? 'vi-VN' : 'en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+}
+
+function updateSendButton() {
+    if (!sendBtn) return;
+    sendBtn.disabled = isLoading || !messageInput.value.trim();
+    sendBtn.innerHTML = isLoading ? '<i class="fas fa-spinner fa-spin"></i>' : '<i class="fas fa-paper-plane"></i>';
+}
+
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if (themeToggle) themeToggle.checked = savedTheme === 'dark';
+}
+
+function toggleSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.toggle('open');
+    mobileOverlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+}
+
+function closeSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.remove('open');
+    mobileOverlay.style.display = 'none';
+}
+
+// Render user info
+function renderUserInfo() {
+    const headerInfo = document.querySelector('.header-info');
+    headerInfo.innerHTML = `
+        <div class="bot-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="header-text">
+            <h1 data-translate="appTitle">${translate('appTitle')}</h1>
+            <p data-translate="appSubtitle">${translate('appSubtitle')}</p>
+        </div>
+    `;
+    if (currentUser) {
+        headerInfo.innerHTML += `
+            <div class="user-info">
+                <span>Xin chào, ${currentUser}</span>
+                <button id="logoutBtn">Đăng Xuất</button>
+            </div>
+        `;
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+    } else {
+        headerInfo.innerHTML += `
+            <div class="user-info">
+                <button id="loginBtn">Đăng Nhập</button>
+                <button id="registerBtn">Đăng Ký</button>
+            </div>
+        `;
+        document.getElementById('loginBtn').addEventListener('click', () => window.location.href = '/login');
+        document.getElementById('registerBtn').addEventListener('click', () => window.location.href = '/register');
+    }
+}
+
+
+function renderUserInfo() {
+    const headerInfo = document.querySelector('.header-info');
+    headerInfo.innerHTML = `
+        <div class="bot-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="header-text">
+            <h1 data-translate="appTitle">${translate('appTitle')}</h1>
+            <p data-translate="appSubtitle">${translate('appSubtitle')}</p>
+        </div>
+        <div class="user-info">
+            ${currentUser ? `
+                <span>Xin chào, ${currentUser}</span>
+                <button class="control-btn" id="logoutBtn">Đăng Xuất</button>
+            ` : `
+                <button class="control-btn" id="loginBtn">Đăng Nhập</button>
+                <button class="control-btn" id="registerBtn">Đăng Ký</button>
+            `}
+        </div>
+    `;
+
+    // Thêm sự kiện cho các nút
+    if (currentUser) {
+        const logoutBtn = headerInfo.querySelector('#logoutBtn');
+        if (logoutBtn) logoutBtn.addEventListener('click', logout);
+    } else {
+        const loginBtn = headerInfo.querySelector('#loginBtn');
+        const registerBtn = headerInfo.querySelector('#registerBtn');
+        if (loginBtn) loginBtn.addEventListener('click', () => window.location.href = '/login');
+        if (registerBtn) registerBtn.addEventListener('click', () => window.location.href = '/register');
+    }
+}
+// Initialize DOM elements
+function initializeDOM() {
+    sidebar = document.getElementById('sidebar');
+    mobileOverlay = document.getElementById('mobileOverlay');
+    menuBtn = document.getElementById('menuBtn');
+    closeSidebarBtn = document.getElementById('closeSidebarBtn');
+    newChatBtn = document.getElementById('newChatBtn');
+    conversationsList = document.getElementById('conversationsList');
+    messagesContainer = document.getElementById('messagesContainer');
+    messagesDiv = document.getElementById('messages');
+    welcomeSection = document.getElementById('welcomeSection');
+    suggestedQuestionsElement = document.getElementById('suggestedQuestions');
+    inputForm = document.getElementById('inputForm');
+    messageInput = document.getElementById('messageInput');
+    sendBtn = document.getElementById('sendBtn');
+    themeToggle = document.getElementById('themeToggle');
+    languageSelect = document.getElementById('languageSelect');
+}
+
+// Event listeners
+function initializeEventListeners() {
+    if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
+    if (mobileOverlay) mobileOverlay.addEventListener('click', closeSidebar);
+    if (newChatBtn) newChatBtn.addEventListener('click', createNewConversation);
+
+    if (messageInput) {
+        messageInput.addEventListener('input', () => {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = `${messageInput.scrollHeight}px`;
+            updateSendButton();
+        });
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                inputForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    }
+
+    if (inputForm) {
+        inputForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const content = messageInput.value.trim();
+            if (content) {
+                sendMessage(content);
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                updateSendButton();
+            }
+        });
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener('change', () => {
+            const newTheme = themeToggle.checked ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    if (languageSelect) {
+        languageSelect.addEventListener('change', () => {
+            setLanguage(languageSelect.value);
+        });
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDOM();
+    setLanguage('vi');
+    initializeTheme();
+    initializeEventListeners();
+    checkSession();
+});
+  </script>
+</body>
+</html>
