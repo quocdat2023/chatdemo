@@ -1,818 +1,1361 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-bs-theme="light">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LegalMind</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="app" id="app">
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-title-row">
-                    <h2 data-translate="chatHistory">Lịch Sử Trò Chuyện</h2>
-                    <button class="close-sidebar-btn" id="closeSidebarBtn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <button class="new-chat-btn" id="newChatBtn">
-                    <i class="fas fa-plus"></i>
-                    <span data-translate="newConversation">Hội Thoại Mới</span>
-                </button>
-            </div>
-            
-            <div class="conversations-list" id="conversationsList">
-                <div class="empty-conversations">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square h-12 w-12 text-gray-300 mx-auto mb-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                    <p data-translate="noConversations">Chưa có hội thoại nào</p>
-                    <small data-translate="startNewChat">Bắt đầu một cuộc trò chuyện mới để bắt đầu</small>
-                </div>
-            </div>
-            
-            <div class="sidebar-footer">
-                <div class="controls">
-                    <button class="control-btn" id="themeToggle" title="Chuyển đổi chủ đề">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <select class="language-select" id="languageSelect">
-                        <option value="en">English</option>
-                        <option value="vi" selected>Tiếng Việt</option>
-                    </select>
-                </div>
-                <div class="footer-text">
-                    <p data-translate="appName">LegalMind</p>
-                    <small data-translate="poweredBy">Được cung cấp bởi Công nghệ RAG</small>
-                </div>
-            </div>
-        </div>
+  <meta charset="utf-8">
+  <title>Legalmind | Hệ thống Truy vấn và Soạn thảo Bản án, Án lệ</title>
+  <!-- SEO Meta Tags -->
+  <meta name="description"
+    content="Legalmind - Giải pháp công nghệ hỗ trợ truy vấn, đối chiếu và soạn thảo bản án, án lệ hiệu quả cho ngành tư pháp">
+  <meta name="keywords"
+    content="hệ thống pháp lý, bản án, án lệ, truy vấn pháp lý, soạn thảo bản án, công nghệ pháp lý, legal tech, tư pháp, toà án, phần mềm pháp lý">
+  <meta name="author" content="Createx Studio">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.0/css/boxicons.min.css">
+  <!-- Viewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Theme switcher (color modes) -->
+  <script src="{{ url_for('static', filename='/assets/theme-switcher.js') }}"></script>
 
-        <!-- Main Chat Area -->
-        <div class="chat-area">
-            <!-- Header -->
-            <div class="chat-header">
-                <button class="menu-btn" id="menuBtn">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="header-info">
-                    <div class="bot-avatar">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="header-text">
-                        <h1 data-translate="appTitle">LegalMind</h1>
-                        <p data-translate="appSubtitle">Đặt câu hỏi về các chủ đề pháp lý và nhận được những góc nhìn chuyên sâu</p>
-                    </div>
-                </div>
-            </div>
+  <!-- Favicon and Touch Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='/assets/apple-touch-icon.png') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='/assets/favicon-32x32.png') }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='/assets/favicon-16x16.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='/assets/site.webmanifest') }}">
+  <link rel="mask-icon" href="{{ url_for('static', filename='/assets/safari-pinned-tab.svg') }}" color="#6366f1">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='/assets/favicon.ico') }}">
+  <meta name="msapplication-TileColor" content="#080032">
+  <meta name="msapplication-config" content="{{ url_for('static', filename='/assets/browserconfig.xml') }}">
+  <meta name="theme-color" content="#ffffff">
 
-            <!-- Messages Container -->
-            <div class="messages-container" id="messagesContainer">
-                <div class="welcome-section" id="welcomeSection">
-                    <div class="welcome-icon">
-                       <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles h-8 w-8 text-white"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
-                    </div>
-                    <h2 data-translate="welcomeTitle">Chào mừng đến với LegalMind</h2>
-                    <p data-translate="welcomeText">Tôi ở đây để giúp bạn hiểu các khái niệm pháp lý, phân tích hợp đồng và cung cấp thông tin chuyên sâu về các lĩnh vực pháp luật khác nhau. Hãy hỏi tôi bất cứ điều gì về các chủ đề pháp lý, tôi sẽ cung cấp hướng dẫn chi tiết và chuyên nghiệp.</p>
-                    
-                    <div class="suggested-questions" id="suggestedQuestions">
-                        <h3 data-translate="popularQuestions">Câu Hỏi Phổ Biến</h3>
-                        <div class="questions-grid">
-                            <button class="question-btn" data-question="Các yếu tố chính của một hợp đồng hợp lệ là gì?">
-                                <i class="fas fa-file-contract"></i>
-                                <span data-translate="question1">Các yếu tố chính của một hợp đồng hợp lệ là gì?</span>
-                            </button>
-                            <button class="question-btn" data-question="Giải thích sự khác biệt giữa luật dân sự và luật hình sự">
-                                <i class="fas fa-balance-scale"></i>
-                                <span data-translate="question2">Giải thích sự khác biệt giữa luật dân sự và luật hình sự</span>
-                            </button>
-                            <button class="question-btn" data-question="Luật sở hữu trí tuệ là gì?">
-                                <i class="fas fa-lightbulb"></i>
-                                <span data-translate="question3">Luật sở hữu trí tuệ là gì?</span>
-                            </button>
-                            <button class="question-btn" data-question="Việc chấm dứt hợp đồng hoạt động như thế nào?">
-                                <i class="fas fa-file-signature"></i>
-                                <span data-translate="question4">Việc chấm dứt hợp đồng hoạt động như thế nào?</span>
-                            </button>
-                            <button class="question-btn" data-question="Nghĩa vụ ủy thác trong luật doanh nghiệp là gì?">
-                                <i class="fas fa-building"></i>
-                                <span data-translate="question5">Nghĩa vụ ủy thác trong luật doanh nghiệp là gì?</span>
-                            </button>
-                            <button class="question-btn" data-question="Giải thích các điều khoản bất khả kháng">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <span data-translate="question6">Giải thích các điều khoản bất khả kháng</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+  <!-- Vendor Styles -->
+  <link rel="stylesheet" media="screen" href="{{ url_for('static', filename='/assets/boxicons.min.css') }}">
+  <link rel="stylesheet" media="screen" href="{{ url_for('static', filename='/assets/swiper-bundle.min.css') }}">
 
-                <div class="messages" id="messages"></div>
-            </div>
+  <!-- Main Theme Styles + Bootstrap -->
+  <link rel="stylesheet" media="screen" href="{{ url_for('static', filename='/assets/theme.min.css') }}">
 
-            <!-- Input Area -->
-            <div class="input-area">
-                <form class="input-form" id="inputForm">
-                    <div class="input-wrapper">
-                        <textarea 
-                            id="messageInput" 
-                            placeholder="Đặt câu hỏi về các chủ đề pháp lý..."
-                            data-translate-placeholder="inputPlaceholder"
-                            rows="1"
-                        ></textarea>
-                        <button type="submit" id="sendBtn" disabled>
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </form>
-                <p class="input-hint">
-                    <span data-translate="inputHint">Nhấn Enter để gửi, Shift+Enter để xuống dòng</span>
-                </p>
-            </div>
-        </div>
-    </div>
+  <!-- Page loading styles -->
+  <style>
+    .page-loading {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      -webkit-transition: all .4s .2s ease-in-out;
+      transition: all .4s .2s ease-in-out;
+      background-color: #fff;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 9999;
+    }
 
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobileOverlay"></div>
+    [data-bs-theme="dark"] .page-loading {
+      background-color: #0b0f19;
+    }
 
+    .page-loading.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .page-loading-inner {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      -webkit-transform: translateY(-50%);
+      transform: translateY(-50%);
+      -webkit-transition: opacity .2s ease-in-out;
+      transition: opacity .2s ease-in-out;
+      opacity: 0;
+    }
+
+    .page-loading.active>.page-loading-inner {
+      opacity: 1;
+    }
+
+    .page-loading-inner>span {
+      display: block;
+      font-size: 1rem;
+      font-weight: normal;
+      color: #9397ad;
+    }
+
+    [data-bs-theme="dark"] .page-loading-inner>span {
+      color: #fff;
+      opacity: .6;
+    }
+
+    .page-spinner {
+      display: inline-block;
+      width: 2.75rem;
+      height: 2.75rem;
+      margin-bottom: .75rem;
+      vertical-align: text-bottom;
+      border: .15em solid #b4b7c9;
+      border-right-color: transparent;
+      border-radius: 50%;
+      -webkit-animation: spinner .75s linear infinite;
+      animation: spinner .75s linear infinite;
+    }
+
+    [data-bs-theme="dark"] .page-spinner {
+      border-color: rgba(255, 255, 255, .4);
+      border-right-color: transparent;
+    }
+
+    @-webkit-keyframes spinner {
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes spinner {
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+
+  <!-- Page loading scripts -->
   <script>
-    // Application state
-let currentUser = null;
-let conversations = [];
-let currentConversationId = null;
-let messages = [];
-let isLoading = false;
-
-// DOM elements
-let sidebar, mobileOverlay, menuBtn, closeSidebarBtn, newChatBtn, conversationsList, 
-    messagesContainer, messagesDiv, welcomeSection, suggestedQuestionsElement, 
-    inputForm, messageInput, sendBtn, themeToggle, languageSelect;
-
-// Translation dictionary
-const translations = {
-    en: {
-        chatHistory: 'Chat History',
-        newConversation: 'New Conversation',
-        noConversations: 'No conversations yet',
-        startNewChat: 'Start a new chat to get started',
-        message: 'message',
-        messages: 'messages',
-        relatedQuestions: 'Related Questions',
-        legalReferences: 'Legal References',
-        matchScore: 'Match Score',
-        analyzing: 'Analyzing...',
-        errorMessage: 'An error occurred. Please try again.',
-        appName: 'Legal Assistant AI',
-        poweredBy: 'Powered by RAG Technology',
-        appTitle: 'Legal Assistant AI',
-        appSubtitle: 'Ask about legal topics and get in-depth insights',
-        welcomeTitle: 'Welcome to Legal Assistant AI',
-        welcomeText: 'I am here to help you understand legal concepts, analyze contracts, and provide insights across various legal domains. Ask me anything about legal topics, and I will provide detailed and professional guidance.',
-        popularQuestions: 'Popular Questions',
-        question1: 'What are the essential elements of a valid contract?',
-        question2: 'Explain the difference between civil law and criminal law',
-        question3: 'What is intellectual property law?',
-        question4: 'How does contract termination work?',
-        question5: 'What are fiduciary duties in corporate law?',
-        question6: 'Explain force majeure clauses',
-        inputPlaceholder: 'Ask about legal topics...',
-        inputHint: 'Press Enter to send, Shift+Enter for new line'
-    },
-    vi: {
-        chatHistory: 'Lịch Sử Trò Chuyện',
-        newConversation: 'Hội Thoại Mới',
-        noConversations: 'Chưa có hội thoại nào',
-        startNewChat: 'Bắt đầu hội thoại mới để tiếp tục',
-        message: 'tin nhắn',
-        messages: 'tin nhắn',
-        relatedQuestions: 'Câu Hỏi Liên Quan',
-        legalReferences: 'Tài Liệu Pháp Lý',
-        matchScore: 'Độ Khớp',
-        analyzing: 'Đang phân tích...',
-        errorMessage: 'Có lỗi xảy ra. Vui lòng thử lại.',
-        appName: 'LegalMind',
-        poweredBy: 'Được cung cấp bởi Công nghệ RAG',
-        appTitle: 'LegalMind',
-        appSubtitle: 'Đặt câu hỏi về các chủ đề pháp lý và nhận được những góc nhìn chuyên sâu',
-        welcomeTitle: 'Chào mừng đến với LegalMind',
-        welcomeText: 'Tôi ở đây để giúp bạn hiểu các khái niệm pháp lý, phân tích hợp đồng và cung cấp thông tin chuyên sâu về các lĩnh vực pháp luật khác nhau. Hãy hỏi tôi bất cứ điều gì về các chủ đề pháp lý, tôi sẽ cung cấp hướng dẫn chi tiết và chuyên nghiệp.',
-        popularQuestions: 'Câu Hỏi Phổ Biến',
-        question1: 'Các yếu tố chính của một hợp đồng hợp lệ là gì?',
-        question2: 'Giải thích sự khác biệt giữa luật dân sự và luật hình sự',
-        question3: 'Luật sở hữu trí tuệ là gì?',
-        question4: 'Việc chấm dứt hợp đồng hoạt động như thế nào?',
-        question5: 'Nghĩa vụ ủy thác trong luật doanh nghiệp là gì?',
-        question6: 'Giải thích các điều khoản bất khả kháng',
-        inputPlaceholder: 'Đặt câu hỏi về các chủ đề pháp lý...',
-        inputHint: 'Nhấn Enter để gửi, Shift+Enter để xuống dòng'
-    }
-};
-
-function convertToVietnamTime(timestamp) {
-    // Tạo đối tượng ngày từ dấu thời gian
-    let date = new Date(timestamp);
-
-    // Chuyển đổi sang múi giờ Việt Nam (GMT+7)
-    let options = { timeZone: 'Asia/Ho_Chi_Minh', timeStyle: 'short', dateStyle: 'short' };
-    let vietnamTime = date.toLocaleString('vi-VN', options);
-    
-    return vietnamTime;
-}
-
-
-// Authentication functions
-async function checkSession() {
-    try {
-        const response = await fetch('/check_session');
-        const data = await response.json();
-        if (data.logged_in) {
-            currentUser = data.username;
-            loadConversations();
-            renderUserInfo();
-        } else {
-            window.location.href = '/login';
-        }
-    } catch (error) {
-        console.error('Error checking session:', error);
-        window.location.href = '/login';
-    }
-}
-
-async function logout() {
-    try {
-        const response = await fetch('/logout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        if (response.ok) {
-            currentUser = null;
-            conversations = [];
-            currentConversationId = null;
-            messages = [];
-            renderConversations();
-            renderMessages();
-            renderUserInfo();
-            window.location.href = '/login';
-        } else {
-            alert('Lỗi khi đăng xuất');
-        }
-    } catch (error) {
-        alert('Lỗi khi đăng xuất');
-    }
-}
-
-// Conversation management
-async function loadConversations() {
-    if (!currentUser) return;
-    try {
-        const response = await fetch('/conversations');
-        const data = await response.json();
-        if (response.ok) {
-            conversations = data;
-            renderConversations();
-        } else {
-            alert(data.error);
-        }
-    } catch (error) {
-        console.error('Error loading conversations:', error);
-    }
-}
-
-async function loadConversation(conversationId) {
-    if (!currentUser) {
-        window.location.href = '/login';
-        return;
-    }
-    try {
-        const response = await fetch(`/conversation/${conversationId}`);
-        const data = await response.json();
-        if (response.ok) {
-            currentConversationId = conversationId;
-            messages = data.messages;
-            renderMessages();
-            closeSidebar();
-        } else {
-            alert(data.error);
-        }
-    } catch (error) {
-        console.error('Error loading conversation:', error);
-    }
-}
-
-async function deleteConversation(conversationId) {
-    if (!currentUser) {
-        window.location.href = '/login';
-        return;
-    }
-    try {
-        const response = await fetch(`/conversation/${conversationId}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await response.json();
-        if (response.ok) {
-            conversations = conversations.filter(conv => conv.id !== conversationId);
-            if (currentConversationId === conversationId) {
-                currentConversationId = null;
-                messages = [];
-                renderMessages();
-            }
-            renderConversations();
-        } else {
-            alert(data.error);
-        }
-    } catch (error) {
-        console.error('Error deleting conversation:', error);
-    }
-}
-
-function createNewConversation() {
-    if (!currentUser) {
-        window.location.href = '/login';
-        return;
-    }
-    currentConversationId = null;
-    messages = [];
-    renderMessages();
-    closeSidebar();
-}
-
-function selectConversation(conversationId) {
-    if (!currentUser) {
-        window.location.href = '/login';
-        return;
-    }
-    loadConversation(conversationId);
-}
-
-function updateConversationTitle(conversationId, newTitle, messageCount) {
-    const conversation = conversations.find(conv => conv.id === conversationId);
-    if (conversation) {
-        if (conversation.message_count === 0) {
-            conversation.title = newTitle.slice(0, 50) + (newTitle.length > 50 ? '...' : '');
-        }
-        conversation.message_count = messageCount;
-        conversation.timestamp = new Date().toISOString();
-        renderConversations();
-    }
-}
-
-function renderConversations() {
-    if (!conversationsList) return;
-    if (!currentUser || conversations.length === 0) {
-        conversationsList.innerHTML = `
-            <div class="empty-conversations">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square h-12 w-12 text-gray-300 mx-auto mb-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                <p data-translate="noConversations">${translate('noConversations')}</p>
-                <small data-translate="startNewChat">${translate('startNewChat')}</small>
-            </div>
-        `;
-        return;
-    }
-
-    conversationsList.innerHTML = conversations.map(conversation => `
-        <div class="conversation-item ${conversation.id === currentConversationId ? 'active' : ''}" 
-             data-conversation-id="${conversation.id}">
-            <div class="conversation-title">${conversation.title}</div>
-            <div class="conversation-meta">
-                <span>${conversation.message_count} ${conversation.message_count === 1 ? translate('message') : translate('messages')}</span>
-                <span>•</span>
-                <span>${formatTimestamp(new Date(conversation.timestamp).getTime() + 7 * 60 * 60 * 1000)}</span>
-            </div>
-            <button class="delete-conversation" data-conversation-id="${conversation.id}">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-    `).join('');
-
-    conversationsList.querySelectorAll('.conversation-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            if (!e.target.closest('.delete-conversation')) {
-                selectConversation(item.dataset.conversationId);
-            }
-        });
-    });
-
-    conversationsList.querySelectorAll('.delete-conversation').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteConversation(btn.dataset.conversationId);
-        });
-    });
-}
-
-// Message management
-function addMessage(type, content, sources = null, relatedQuestions = null, isTyping = false) {
-    if (!messagesDiv) return;
-    const message = {
-        id: Date.now().toString() + (isTyping ? '-typing' : ''),
-        type,
-        content,
-        timestamp: new Date().toISOString(),
-        sources,
-        relatedQuestions,
-        isTyping
-    };
-    
-    if (isTyping) {
-        messages = messages.filter(msg => !msg.isTyping);
-    }
-    
-    messages.push(message);
-    renderMessages();
-    
-    return message.id;
-}
-
-function removeMessage(messageId) {
-    if (!messagesDiv) return;
-    messages = messages.filter(msg => msg.id !== messageId);
-    renderMessages();
-}
-
-function renderMessages() {
-    if (!messagesDiv) return;
-    const hasMessages = messages.length > 0;
-    const hasConversation = currentConversationId !== null;
-    
-    welcomeSection.style.display = hasMessages ? 'none' : 'block';
-    
-    if (!hasMessages && !hasConversation) {
-        suggestedQuestionsElement.style.display = 'block';
-        const currentLang = getCurrentLanguage();
-        suggestedQuestionsElement.innerHTML = `
-            <h3 data-translate="popularQuestions">${translate('popularQuestions')}</h3>
-            <div class="questions-grid">
-                <button class="question-btn" data-question="${translations[currentLang].question1}">
-                    <i class="fas fa-file-contract"></i>
-                    <span>${translations[currentLang].question1}</span>
-                </button>
-                <button class="question-btn" data-question="${translations[currentLang].question2}">
-                    <i class="fas fa-balance-scale"></i>
-                    <span>${translations[currentLang].question2}</span>
-                </button>
-                <button class="question-btn" data-question="${translations[currentLang].question3}">
-                    <i class="fas fa-lightbulb"></i>
-                    <span>${translations[currentLang].question3}</span>
-                </button>
-                <button class="question-btn" data-question="${translations[currentLang].question4}">
-                    <i class="fas fa-file-signature"></i>
-                    <span>${translations[currentLang].question4}</span>
-                </button>
-                <button class="question-btn" data-question="${translations[currentLang].question5}">
-                    <i class="fas fa-building"></i>
-                    <span>${translations[currentLang].question5}</span>
-                </button>
-                <button class="question-btn" data-question="${translations[currentLang].question6}">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>${translations[currentLang].question6}</span>
-                </button>
-            </div>
-        `;
-        suggestedQuestionsElement.querySelectorAll('.question-btn').forEach(btn => {
-            btn.addEventListener('click', () => sendMessage(btn.dataset.question));
-        });
-    } else {
-        suggestedQuestionsElement.style.display = 'none';
-    }
-
-    if (!hasMessages) {
-        messagesDiv.innerHTML = '';
-        return;
-    }
-
-    messagesDiv.innerHTML = messages.map(message => {
-        if (message.isTyping) {
-            return `
-                <div class="message assistant fade-in">
-                    <div class="message-content">
-                        <div class="message-wrapper">
-                            <div class="message-avatar">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div class="message-bubble">
-                                <div class="typing-indicator">
-                                    <div class="typing-dots">
-                                        <div class="typing-dot"></div>
-                                        <div class="typing-dot"></div>
-                                        <div class="typing-dot"></div>
-                                    </div>
-                                    <span>${translate('analyzing')}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        const sourcesHtml = message.sources ? `
-            <div class="message-sources">
-                <div class="sources-title">${translate('legalReferences')}</div>
-                ${message.sources.map(source => `
-                    <div class="source-item">
-                        <div class="source-header">
-                            <div class="source-info">
-                                <i class="fas fa-file-text"></i>
-                                <div class="source-details">
-                                    <div class="source-name">${source.file}</div>
-                                    <div class="source-excerpt">"${source.text.slice(0, 150) + '...'}"</div>
-                                </div>
-                            </div>
-                            <div class="source-meta">
-                                <div class="source-score">${source.distance.toFixed(4)} ${translate('matchScore')}</div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        ` : '';
-
-        const relatedQuestionsHtml = message.relatedQuestions ? `
-             <div class="related-questions">
-                        <div class="sources-title">${translate('relatedQuestions')}</div>
-                        <div class="questions-grid">
-                             ${message.relatedQuestions.map(q => `
-                                <button class="question-btn" data-question="${q.question}">
-                                    <i class="fa-solid fa-circle-question"></i>
-                                    <span>${q.question}</span>
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-        ` : '';
-
-        return `
-            <div class="message ${message.type} fade-in">
-                <div class="message-content">
-                    <div class="message-wrapper">
-                        <div class="message-avatar">
-                            <i class="fas ${message.type === 'user' ? 'fa-user' : 'fa-robot'}"></i>
-                        </div>
-                        <div class="message-bubble">
-                            <div class="message-text">${message.content}</div>
-                            ${sourcesHtml}
-                            ${relatedQuestionsHtml}
-                            <div class="message-timestamp">${formatTimestamp(new Date(message.timestamp).getTime() + 7 * 60 * 60 * 1000)}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    messagesDiv.querySelectorAll('.question-btn').forEach(btn => {
-        btn.addEventListener('click', () => sendMessage(btn.dataset.question));
-    });
-}
-
-async function sendMessage(content) {
-    if (!content.trim() || isLoading || !currentUser) {
-        if (!currentUser) window.location.href = '/login';
-        return;
-    }
-
-    const messageData = { question: content };
-    if (currentConversationId) {
-        messageData.conversation_id = currentConversationId;
-    }
-
-    addMessage('user', content);
-    const messageCount = messages.filter(msg => !msg.isTyping).length;
-    updateConversationTitle(currentConversationId, content, messageCount);
-
-    isLoading = true;
-    updateSendButton();
-
-    const typingId = addMessage('assistant', '', null, null, true);
-
-    try {
-        const response = await fetch('/query', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(messageData)
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-            removeMessage(typingId);
-            currentConversationId = data.conversation_id;
-            addMessage('assistant', data.final_response, data.top_banan_documents, data.related_questions);
-            loadConversations();
-        } else {
-            throw new Error(data.error);
-        }
-    } catch (error) {
-        removeMessage(typingId);
-        addMessage('assistant', translate('errorMessage'));
-    } finally {
-        isLoading = false;
-        updateSendButton();
-    }
-}
-
-// Utility functions
-function translate(key) {
-    const lang = getCurrentLanguage();
-    return translations[lang][key] || key;
-}
-
-function getCurrentLanguage() {
-    return languageSelect ? languageSelect.value : 'vi';
-}
-
-function setLanguage(lang) {
-    if (languageSelect) languageSelect.value = lang;
-    document.querySelectorAll('[data-translate]').forEach(element => {
-        const key = element.dataset.translate;
-        element.textContent = translate(key);
-    });
-    document.querySelectorAll('[data-translate-placeholder]').forEach(element => {
-        const key = element.dataset.translatePlaceholder;
-        element.placeholder = translate(key);
-    });
-    renderConversations();
-    renderMessages();
-}
-
-function formatTimestamp(timestamp) {
-    const date = new Date(timestamp);
-    return date.toLocaleString(getCurrentLanguage() === 'vi' ? 'vi-VN' : 'en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-}
-
-function updateSendButton() {
-    if (!sendBtn) return;
-    sendBtn.disabled = isLoading || !messageInput.value.trim();
-    sendBtn.innerHTML = isLoading ? '<i class="fas fa-spinner fa-spin"></i>' : '<i class="fas fa-paper-plane"></i>';
-}
-
-function initializeTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    if (themeToggle) themeToggle.checked = savedTheme === 'dark';
-}
-
-function toggleSidebar() {
-    if (!sidebar) return;
-    sidebar.classList.toggle('open');
-    mobileOverlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
-}
-
-function closeSidebar() {
-    if (!sidebar) return;
-    sidebar.classList.remove('open');
-    mobileOverlay.style.display = 'none';
-}
-
-// Render user info
-function renderUserInfo() {
-    const headerInfo = document.querySelector('.header-info');
-    headerInfo.innerHTML = `
-        <div class="bot-avatar">
-            <i class="fas fa-robot"></i>
-        </div>
-        <div class="header-text">
-            <h1 data-translate="appTitle">${translate('appTitle')}</h1>
-            <p data-translate="appSubtitle">${translate('appSubtitle')}</p>
-        </div>
-    `;
-    if (currentUser) {
-        headerInfo.innerHTML += `
-            <div class="user-info">
-                <span>Xin chào, ${currentUser}</span>
-                <button id="logoutBtn">Đăng Xuất</button>
-            </div>
-        `;
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-    } else {
-        headerInfo.innerHTML += `
-            <div class="user-info">
-                <button id="loginBtn">Đăng Nhập</button>
-                <button id="registerBtn">Đăng Ký</button>
-            </div>
-        `;
-        document.getElementById('loginBtn').addEventListener('click', () => window.location.href = '/login');
-        document.getElementById('registerBtn').addEventListener('click', () => window.location.href = '/register');
-    }
-}
-
-
-function renderUserInfo() {
-    const headerInfo = document.querySelector('.header-info');
-    headerInfo.innerHTML = `
-        <div class="bot-avatar">
-            <i class="fas fa-robot"></i>
-        </div>
-        <div class="header-text">
-            <h1 data-translate="appTitle">${translate('appTitle')}</h1>
-            <p data-translate="appSubtitle">${translate('appSubtitle')}</p>
-        </div>
-        <div class="user-info">
-            ${currentUser ? `
-                <span>Xin chào, ${currentUser}</span>
-                <button class="control-btn" id="logoutBtn">Đăng Xuất</button>
-            ` : `
-                <button class="control-btn" id="loginBtn">Đăng Nhập</button>
-                <button class="control-btn" id="registerBtn">Đăng Ký</button>
-            `}
-        </div>
-    `;
-
-    // Thêm sự kiện cho các nút
-    if (currentUser) {
-        const logoutBtn = headerInfo.querySelector('#logoutBtn');
-        if (logoutBtn) logoutBtn.addEventListener('click', logout);
-    } else {
-        const loginBtn = headerInfo.querySelector('#loginBtn');
-        const registerBtn = headerInfo.querySelector('#registerBtn');
-        if (loginBtn) loginBtn.addEventListener('click', () => window.location.href = '/login');
-        if (registerBtn) registerBtn.addEventListener('click', () => window.location.href = '/register');
-    }
-}
-// Initialize DOM elements
-function initializeDOM() {
-    sidebar = document.getElementById('sidebar');
-    mobileOverlay = document.getElementById('mobileOverlay');
-    menuBtn = document.getElementById('menuBtn');
-    closeSidebarBtn = document.getElementById('closeSidebarBtn');
-    newChatBtn = document.getElementById('newChatBtn');
-    conversationsList = document.getElementById('conversationsList');
-    messagesContainer = document.getElementById('messagesContainer');
-    messagesDiv = document.getElementById('messages');
-    welcomeSection = document.getElementById('welcomeSection');
-    suggestedQuestionsElement = document.getElementById('suggestedQuestions');
-    inputForm = document.getElementById('inputForm');
-    messageInput = document.getElementById('messageInput');
-    sendBtn = document.getElementById('sendBtn');
-    themeToggle = document.getElementById('themeToggle');
-    languageSelect = document.getElementById('languageSelect');
-}
-
-// Event listeners
-function initializeEventListeners() {
-    if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
-    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
-    if (mobileOverlay) mobileOverlay.addEventListener('click', closeSidebar);
-    if (newChatBtn) newChatBtn.addEventListener('click', createNewConversation);
-
-    if (messageInput) {
-        messageInput.addEventListener('input', () => {
-            messageInput.style.height = 'auto';
-            messageInput.style.height = `${messageInput.scrollHeight}px`;
-            updateSendButton();
-        });
-        messageInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                inputForm.dispatchEvent(new Event('submit'));
-            }
-        });
-    }
-
-    if (inputForm) {
-        inputForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const content = messageInput.value.trim();
-            if (content) {
-                sendMessage(content);
-                messageInput.value = '';
-                messageInput.style.height = 'auto';
-                updateSendButton();
-            }
-        });
-    }
-
-    if (themeToggle) {
-        themeToggle.addEventListener('change', () => {
-            const newTheme = themeToggle.checked ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        });
-    }
-
-    if (languageSelect) {
-        languageSelect.addEventListener('change', () => {
-            setLanguage(languageSelect.value);
-        });
-    }
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    initializeDOM();
-    setLanguage('vi');
-    initializeTheme();
-    initializeEventListeners();
-    checkSession();
-});
+    (function () {
+      window.onload = function () {
+        const preloader = document.querySelector('.page-loading');
+        preloader.classList.remove('active');
+        setTimeout(function () {
+          preloader.remove();
+        }, 1000);
+      };
+    })();
   </script>
+</head>
+
+<!-- Body -->
+
+<body>
+  <!-- Page loading spinner -->
+  <div class="page-loading active">
+    <div class="page-loading-inner">
+      <div class="page-spinner"></div><span>Đang tải...</span>
+    </div>
+  </div>
+
+  <!-- Page wrapper for sticky footer -->
+  <main class="page-wrapper">
+
+    <!-- Navbar -->
+    <header class="header navbar navbar-expand-lg navbar-dark position-absolute navbar-sticky">
+      <div class="container px-3">
+        <a href="index.html" class="navbar-brand pe-3">
+          <img src="https://silicon.createx.studio/assets/img/logo.svg" width="47" alt="Legalmind">
+          Legalmind
+        </a>
+        <div id="navbarNav" class="offcanvas offcanvas-end bg-dark">
+          <div class="offcanvas-header border-bottom border-light">
+            <h5 class="offcanvas-title text-white">Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+              aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown" aria-current="page">Giới thiệu</a>
+                <div class="dropdown-menu dropdown-menu-dark p-0">
+                  <div class="d-lg-flex">
+                    <div class="mega-dropdown-column pt-lg-3 pb-lg-4" style="--si-mega-dropdown-column-width: 15rem;">
+                      <ul class="list-unstyled mb-0">
+                        <li><a href="index.html" class="dropdown-item">Trang giới thiệu</a></li>
+                        <li><a href="legal-query-system.html" class="dropdown-item">Hệ thống truy vấn pháp lý</a></li>
+                        <li><a href="judgment-drafting.html" class="dropdown-item">Soạn thảo bản án</a></li>
+                        <li><a href="precedent-search.html" class="dropdown-item">Tra cứu án lệ<span
+                              class="badge bg-success ms-2">Mới</span></a></li>
+                        <li><a href="legal-analytics.html" class="dropdown-item">Phân tích pháp lý</a></li>
+                        <li><a href="case-management.html" class="dropdown-item">Quản lý vụ án</a></li>
+                      </ul>
+                    </div>
+                    <div class="mega-dropdown-column pt-lg-3 pb-lg-4">
+                      <ul class="list-unstyled mb-0">
+                        <li><a href="legal-consulting.html" class="dropdown-item">Tư vấn pháp lý</a></li>
+                        <li><a href="legal-training.html" class="dropdown-item">Đào tạo pháp lý</a></li>
+                        <li><a href="legal-blog.html" class="dropdown-item">Blog pháp lý</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <!-- <li class="nav-item dropdown">
+                  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Trang</a>
+                  <div class="dropdown-menu dropdown-menu-dark">
+                    <div class="d-lg-flex pt-lg-3">
+                      <div class="mega-dropdown-column">
+                        <h6 class="text-white px-3 mb-2">Giới thiệu</h6>
+                        <ul class="list-unstyled mb-3">
+                          <li><a href="about-v1.html" class="dropdown-item py-1">Giới thiệu v.1</a></li>
+                          <li><a href="about-v2.html" class="dropdown-item py-1">Giới thiệu v.2</a></li>
+                          <li><a href="about-v3.html" class="dropdown-item py-1">Giới thiệu v.3</a></li>
+                        </ul>
+                        <h6 class="text-white px-3 mb-2">Blog</h6>
+                        <ul class="list-unstyled mb-3">
+                          <li><a href="blog-list-with-sidebar.html" class="dropdown-item py-1">Danh sách Blog có Sidebar</a></li>
+                          <li><a href="blog-grid-with-sidebar.html" class="dropdown-item py-1">Lưới Blog có Sidebar</a></li>
+                          <li><a href="blog-list-no-sidebar.html" class="dropdown-item py-1">Danh sách Blog không Sidebar</a></li>
+                          <li><a href="blog-grid-no-sidebar.html" class="dropdown-item py-1">Lưới Blog không Sidebar</a></li>
+                          <li><a href="blog-simple-feed.html" class="dropdown-item py-1">Nguồn cấp đơn giản</a></li>
+                          <li><a href="blog-single.html" class="dropdown-item py-1">Bài viết đơn</a></li>
+                          <li><a href="blog-podcast.html" class="dropdown-item py-1">Podcast</a></li>
+                        </ul>
+                      </div>
+                      <div class="mega-dropdown-column">
+                        <h6 class="text-white px-3 mb-2">Dịch vụ</h6>
+                        <ul class="list-unstyled mb-3">
+                          <li><a href="services-v1.html" class="dropdown-item py-1">Dịch vụ v.1</a></li>
+                          <li><a href="services-v2.html" class="dropdown-item py-1">Dịch vụ v.2</a></li>
+                          <li><a href="services-single-v1.html" class="dropdown-item py-1">Chi tiết dịch vụ v.1</a></li>
+                          <li><a href="services-single-v2.html" class="dropdown-item py-1">Chi tiết dịch vụ v.2</a></li>
+                        </ul>
+                      </div>
+                      <div class="mega-dropdown-column">
+                        <h6 class="text-white px-3 mb-2">Liên hệ</h6>
+                        <ul class="list-unstyled mb-3">
+                          <li><a href="contacts-v1.html" class="dropdown-item py-1">Liên hệ v.1</a></li>
+                          <li><a href="contacts-v2.html" class="dropdown-item py-1">Liên hệ v.2</a></li>
+                          <li><a href="contacts-v3.html" class="dropdown-item py-1">Liên hệ v.3</a></li>
+                        </ul>
+                        <h6 class="text-white px-3 mb-2">Khác</h6>
+                        <ul class="list-unstyled">
+                          <li><a href="404-v1.html" class="dropdown-item py-1">Lỗi 404 v.1</a></li>
+                          <li><a href="404-v2.html" class="dropdown-item py-1">Lỗi 404 v.2</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item dropdown">
+                  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Tài khoản</a>
+                  <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a href="account-details.html" class="dropdown-item">Chi tiết tài khoản</a></li>
+                    <li><a href="account-security.html" class="dropdown-item">Bảo mật</a></li>
+                    <li><a href="account-notifications.html" class="dropdown-item">Thông báo</a></li>
+                    <li><a href="account-messages.html" class="dropdown-item">Tin nhắn</a></li>
+                    <li><a href="account-saved-items.html" class="dropdown-item">Mục đã lưu</a></li>
+                    <li><a href="account-collections.html" class="dropdown-item">Bộ sưu tập của tôi</a></li>
+                    <li><a href="account-payment.html" class="dropdown-item">Chi tiết thanh toán</a></li>
+                    <li><a href="account-signin.html" class="dropdown-item">Đăng nhập</a></li>
+                    <li><a href="account-signup.html" class="dropdown-item">Đăng ký</a></li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a href="components/typography.html" class="nav-link text-nowrap">Giao diện người dùng</a>
+                </li> -->
+              <li class="nav-item">
+                <a href="docs/getting-started.html" class="nav-link">Tài liệu</a>
+              </li>
+               <li class="nav-item">
+                <a href="/login" class="nav-link">Đăng nhập</a>
+              </li>
+            </ul>
+          </div>
+          <div class="offcanvas-header border-top border-light">
+            <a href="/register" class="btn btn-primary w-100" target="_blank" rel="noopener">
+              <!-- <i class="bx bx-cart fs-4 lh-1 me-1"></i> -->
+              Đăng ký ngay
+            </a>
+          </div>
+        </div>
+        <div class="pe-lg-1 ms-auto me-4" data-bs-theme="dark">
+          <div class="form-check form-switch mode-switch" data-bs-toggle="mode">
+            <input type="checkbox" class="form-check-input" id="theme-mode">
+            <label class="form-check-label d-none d-sm-block" for="theme-mode">Sáng</label>
+            <label class="form-check-label d-none d-sm-block" for="theme-mode">Tối</label>
+          </div>
+        </div>
+        <button type="button" class="navbar-toggler" data-bs-toggle="offcanvas" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <a href="/register" class="btn btn-primary bg-gradient-primary border-0 rounded-pill d-none d-lg-inline-flex"
+          target="_blank" rel="noopener">
+          <!-- <i class="bx bx-cart fs-5 lh-1 me-1"></i> -->
+          Đăng ký ngay
+        </a>
+      </div>
+    </header>
+
+    <!-- Hero section -->
+    <section class="position-relative bg-dark pt-lg-4 pt-xl-5"
+      style="background: linear-gradient(90deg, #0B0F19 0%, #172033 51.04%, #0B0F19 100%);">
+      <div class="jarallax position-absolute top-0 start-0 w-100 h-100" data-jarallax data-speed="0.4">
+        <div class="jarallax-img"
+          style="background-image: url(https://silicon.createx.studio/assets/img/landing/saas-5/hero-bg-pattern.png);">
+        </div>
+      </div>
+      <div class="container position-relative zindex-2 pt-2 pt-sm-4 pt-md-5">
+        <div class="row justify-content-center pt-5">
+          <div class="col-lg-9 col-xl-8 text-center pt-5 mt-1">
+            <a href="#"
+              class="d-inline-flex align-items-center fs-sm fw-semibold text-decoration-none border border-primary border-opacity-50 rounded-pill py-1 px-3">
+              <span class="text-gradient-primary lh-lg">Legalmind v2.0 Mới</span>
+              <i class="bx bx-right-arrow-alt fs-lg ms-2 me-n1"></i>
+            </a>
+            <h1 class="display-4 text-white pt-3 mt-3 mb-4">Giải pháp AI tối ưu cho nhu cầu pháp lý của bạn</h1>
+            <p class="text-white opacity-70 fs-xl">Nền tảng công nghệ pháp lý của chúng tôi được thiết kế để xử lý khối
+              lượng dữ liệu lớn, hỗ trợ truy vấn và soạn thảo bản án, án lệ một cách hiệu quả cho các cơ quan tư pháp và
+              văn phòng luật.</p>
+          </div>
+        </div>
+      </div>
+      <div class="d-none d-lg-block" style="height: 480px;"></div>
+      <div class="d-lg-none" style="height: 400px;"></div>
+      <div class="d-flex position-absolute bottom-0 start-0 w-100 overflow-hidden mb-n1"
+        style="color: var(--si-body-bg);">
+        <div class="position-relative start-50 translate-middle-x flex-shrink-0" style="width: 3774px;">
+          <svg width="3774" height="201" viewBox="0 0 3774 201" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M0 200.003C0 200.003 1137.52 0.188224 1873.5 0.000134392C2614.84 -0.189325 3774 200.003 3774 200.003H0Z"
+              fill="currentColor" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+ <section class="container position-relative zindex-3">
+      <div class="d-none d-lg-block" style="margin-top: -428px;"></div>
+      <div class="d-lg-none" style="margin-top: -370px;"></div>
+      <div class="swiper swiper-initialized swiper-horizontal swiper-backface-hidden" data-swiper-options='{
+        "slidesPerView": 1,
+        "spaceBetween": 24,
+        "pagination": {
+          "el": ".swiper-pagination",
+          "clickable": true
+        },
+        "breakpoints": {
+          "560": {
+            "slidesPerView": 2
+          },
+          "960": {
+            "slidesPerView": 3
+          }
+        }
+      }'>
+        <div class="swiper-wrapper" id="swiper-wrapper-e8248b939c110318c" aria-live="polite" style="transition-duration: 0ms; transform: translate3d(-648.667px, 0px, 0px); transition-delay: 0ms;">
+
+          <!-- Item -->
+          <div class="swiper-slide" style="width: 300.333px; margin-right: 24px;" role="group" aria-label="1 / 5">
+            <a href="#" class="card-portfolio position-relative d-block rounded-3 overflow-hidden">
+              <span class="position-absolute top-0 start-0 w-100 h-100 zindex-1" style="background: linear-gradient(180deg, rgba(17, 24, 39, 0.00) 35.56%, #111827 95.3%);"></span>
+              <div class="position-absolute bottom-0 w-100 zindex-2 p-4">
+                <div class="px-md-3">
+                  <h3 class="h4 text-white mb-0">Phân tích án lệ</h3>
+                  <div class="card-portfolio-meta d-flex align-items-center justify-content-between">
+                    <span class="text-white fs-xs text-truncate opacity-70 pe-3">Truy vấn và phân tích án lệ chính xác, nhanh chóng</span>
+                    <i class="fas fa-arrow-circle-right fs-3 text-gradient-primary"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="card-img" style="height: 200px;">
+                <img src="https://img.freepik.com/premium-photo/3d-floating-magnifying-glass-document-with-analysis-concept-vector-design-showing-analytical-b_980716-584879.jpg" alt="Phân tích án lệ">
+              </div>
+            </a>
+          </div>
+
+          <!-- Item -->
+          <div class="swiper-slide swiper-slide-prev" style="width: 300.333px; margin-right: 24px;" role="group" aria-label="2 / 5">
+            <a href="#" class="card-portfolio position-relative d-block rounded-3 overflow-hidden">
+              <span class="position-absolute top-0 start-0 w-100 h-100 zindex-1" style="background: linear-gradient(180deg, rgba(17, 24, 39, 0.00) 35.56%, #111827 95.3%);"></span>
+              <div class="position-absolute bottom-0 w-100 zindex-2 p-4">
+                <div class="px-md-3">
+                  <h3 class="h4 text-white mb-0">Soạn thảo bản án</h3>
+                  <div class="card-portfolio-meta d-flex align-items-center justify-content-between">
+                    <span class="text-white fs-xs text-truncate opacity-70 pe-3">Tự động hóa soạn thảo bản án, tiết kiệm thời gian</span>
+                    <i class="fas fa-arrow-circle-right fs-3 text-gradient-primary"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="card-img" style="height: 200px;">
+                <img src="https://media.licdn.com/dms/image/v2/D5612AQEwCXeeULuS4Q/article-cover_image-shrink_600_2000/article-cover_image-shrink_600_2000/0/1666966339825?e=2147483647&v=beta&t=DCSnIMmyQYUnrLP-X1EHFI3-fHyytLhqUXW-KcS0sCE" alt="Soạn thảo bản án">
+              </div>
+            </a>
+          </div>
+
+          <!-- Item -->
+          <div class="swiper-slide swiper-slide-active" style="width: 300.333px; margin-right: 24px;" role="group" aria-label="3 / 5">
+            <a href="#" class="card-portfolio position-relative d-block rounded-3 overflow-hidden">
+              <span class="position-absolute top-0 start-0 w-100 h-100 zindex-1" style="background: linear-gradient(180deg, rgba(17, 24, 39, 0.00) 35.56%, #111827 95.3%);"></span>
+              <div class="position-absolute bottom-0 w-100 zindex-2 p-4">
+                <div class="px-md-3">
+                  <h3 class="h4 text-white mb-0">Tư vấn pháp lý</h3>
+                  <div class="card-portfolio-meta d-flex align-items-center justify-content-between">
+                    <span class="text-white fs-xs text-truncate opacity-70 pe-3">Hỗ trợ tư vấn pháp lý nhanh chóng, dựa trên AI</span>
+                    <i class="fas fa-arrow-circle-right fs-3 text-gradient-primary"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="card-img" style="height: 200px;">
+                <img src="https://gvlawyers.com.vn/wp-content/uploads/2024/06/tong-hop-6-ky-nang-tu-van-phap-luat-bang-loi-noi.png" alt="Tư vấn pháp lý">
+              </div>
+            </a>
+          </div>
+
+          <!-- Item -->
+          <div class="swiper-slide swiper-slide-next" style="width: 300.333px; margin-right: 24px;" role="group" aria-label="4 / 5">
+            <a href="#" class="card-portfolio position-relative d-block rounded-3 overflow-hidden">
+              <span class="position-absolute top-0 start-0 w-100 h-100 zindex-1" style="background: linear-gradient(180deg, rgba(17, 24, 39, 0.00) 35.56%, #111827 95.3%);"></span>
+              <div class="position-absolute bottom-0 w-100 zindex-2 p-4">
+                <div class="px-md-3">
+                  <h3 class="h4 text-white mb-0">Quản lý hồ sơ vụ án</h3>
+                  <div class="card-portfolio-meta d-flex align-items-center justify-content-between">
+                    <span class="text-white fs-xs text-truncate opacity-70 pe-3">Tổ chức và quản lý hồ sơ vụ án hiệu quả</span>
+                    <i class="fas fa-arrow-circle-right fs-3 text-gradient-primary"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="card-img" style="height: 200px;">
+                <img src="https://sotay365.com/wp-content/uploads/dinh-muc-chi-phi-lap-ho-moi-thau-danh-gia-ho-so-du-thau-e1681964959975.jpg" alt="Quản lý hồ sơ vụ án">
+              </div>
+            </a>
+          </div>
+
+          <!-- Item -->
+          <div class="swiper-slide" role="group" aria-label="5 / 5" style="width: 300.333px; margin-right: 24px;">
+            <a href="#" class="card-portfolio position-relative d-block rounded-3 overflow-hidden">
+              <span class="position-absolute top-0 start-0 w-100 h-100 zindex-1" style="background: linear-gradient(180deg, rgba(17, 24, 39, 0.00) 35.56%, #111827 95.3%);"></span>
+              <div class="position-absolute bottom-0 w-100 zindex-2 p-4">
+                <div class="px-md-3">
+                  <h3 class="h4 text-white mb-0">Tìm kiếm pháp lý</h3>
+                  <div class="card-portfolio-meta d-flex align-items-center justify-content-between">
+                    <span class="text-white fs-xs text-truncate opacity-70 pe-3">Tìm kiếm và phân tích dữ liệu pháp lý thông minh</span>
+                    <i class="fas fa-arrow-circle-right fs-3 text-gradient-primary"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="card-img" style="height: 200px;">
+                <img src="https://pix4free.org/assets/library/2021-07-08/originals/legal-research.jpg" alt="Tìm kiếm pháp lý">
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Pagination (bullets) -->
+        <div class="swiper-pagination position-relative bottom-0 pt-2 pt-md-3 mt-4 swiper-pagination-clickable swiper-pagination-bullets swiper-pagination-horizontal">
+          <span class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Đi đến slide 1"></span>
+          <span class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Đi đến slide 2"></span>
+          <span class="swiper-pagination-bullet swiper-pagination-bullet-active" tabindex="0" role="button" aria-label="Đi đến slide 3" aria-current="true"></span>
+        </div>
+        <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
+      </div>
+    </section>
+
+    <!-- Use cases -->
+    <section class="position-relative overflow-hidden py-5">
+      <span class="position-absolute top-0 start-0 w-100 h-100 d-dark-mode-none"
+        style="background: linear-gradient(141deg, rgba(255, 255, 255, .01) 17.3%, #F3F6FF 78.21%);"></span>
+      <div class="position-absolute top-0 start-0 w-100 h-100 d-none d-dark-mode-block"
+        style="background: linear-gradient(141deg, rgba(11, 15, 25, .01) 17.3%, rgba(255, 255, 255, .04) 78.21%);">
+      </div>
+
+      <div class="container position-relative zindex-2 pt-2 pt-sm-3 pt-md-4 pt-lg-5 mt-xl-3">
+        <h2 class="h1 text-center pb-1 mb-2" style="padding-top: 100px;">Ứng dụng của Legalmind</h2>
+        <p class="fs-lg text-center pb-lg-2">Dưới đây là một số ứng dụng nổi bật của hệ thống</p>
+
+        <!-- Use case -->
+        <div class="row align-items-center justify-content-center py-4 py-md-5 my-1 my-sm-3 my-md-0 my-xl-3">
+          <div class="col-11 col-sm-9 col-md-7 col-lg-6 offset-lg-1 order-md-2 pb-2 pb-sm-3 pb-md-0 mb-4 mb-md-0">
+            <div class="parallax" style="max-width: 636px;">
+              <div class="parallax-layer" data-depth="0">
+                <div class="ratio" style="--si-aspect-ratio: 89.6%"></div>
+              </div>
+              <div class="parallax-layer" style="padding-right: 24.2%;" data-depth="0.1">
+                <img
+                  src="https://silicon.createx.studio/assets/img/landing/saas-5/use-cases/data-analysis/line-chart-light.png"
+                  class="d-dark-mode-none position-relative rounded-3"
+                  style="top: 27.5%; max-width: 482px; box-shadow: 0 12px 48px -8px rgba(189, 196, 221, .35);"
+                  alt="Biểu đồ phân tích bản án">
+                <img
+                  src="https://silicon.createx.studio/assets/img/landing/saas-5/use-cases/data-analysis/line-chart-dark.png"
+                  class="d-none d-dark-mode-block position-relative rounded-3"
+                  style="top: 27.5%; max-width: 482px; box-shadow: 0px 12px 48px -8px rgba(8, 11, 18, .40);"
+                  alt="Biểu đồ phân tích bản án">
+              </div>
+              <div class="parallax-layer" style="padding-left: 45.75%;" data-depth="-0.12">
+                <img
+                  src="https://silicon.createx.studio/assets/img/landing/saas-5/use-cases/data-analysis/bar-chart-light.png"
+                  class="d-dark-mode-none position-relative rounded-3"
+                  style="max-width: 345px; box-shadow: 0 10.8px 43.2px -7.2px rgba(189, 196, 221, .35);"
+                  alt="Biểu đồ thống kê án lệ">
+                <img
+                  src="https://silicon.createx.studio/assets/img/landing/saas-5/use-cases/data-analysis/bar-chart-dark.png"
+                  class="d-none d-dark-mode-block position-relative rounded-3"
+                  style="max-width: 345px; box-shadow: 0px 12px 48px -8px rgba(8, 11, 18, .40);"
+                  alt="Biểu đồ thống kê án lệ">
+              </div>
+              <div class="parallax-layer" style="padding-right: 7.547%; padding-left: 44.97%;" data-depth="0.3">
+                <img
+                  src="https://silicon.createx.studio/assets/img/landing/saas-5/use-cases/data-analysis/donut-chart-light.png"
+                  class="d-dark-mode-none position-relative rounded-3"
+                  style="top: 60.75%; max-width: 302px; box-shadow: 0px 0px 48px -4px rgba(189, 196, 221, .35);"
+                  alt="Biểu đồ phân loại bản án">
+                <img
+                  src="https://silicon.createx.studio/assets/img/landing/saas-5/use-cases/data-analysis/donut-chart-dark.png"
+                  class="d-none d-dark-mode-block position-relative rounded-3"
+                  style="top: 60.75%; max-width: 302px; box-shadow: 0px -15px 48px -8px rgba(8, 11, 18, .40);"
+                  alt="Biểu đồ phân loại bản án">
+              </div>
+            </div>
+          </div>
+          <div class="col-md-5 col-xl-4 offset-xl-1 order-md-1 text-center text-md-start">
+            <h3 class="h2 mb-lg-4">Công cụ phân tích dữ liệu pháp lý</h3>
+            <p class="fs-lg pb-lg-2 mb-4">Từ việc phân tích dữ liệu phức tạp đến trực quan hóa ấn tượng, công nghệ AI
+              tiên tiến của chúng tôi giúp bạn trích xuất thông tin pháp lý giá trị và đưa ra quyết định dựa trên dữ
+              liệu nhanh chóng hơn bao giờ hết.</p>
+            <a href="#" class="btn btn-outline-primary rounded-pill">
+              Tìm hiểu thêm
+              <i class="bx bx-right-arrow-alt fs-lg ms-2 me-n1"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Use case -->
+        <div
+          class="row align-items-center justify-content-center justify-content-md-start py-4 py-md-5 my-2 my-sm-3 my-md-0 my-xl-3">
+          <div class="col-11 col-sm-9 col-md-7 col-lg-6 pb-2 pb-sm-3 pb-md-0 mb-4 mb-md-0">
+            <div class="parallax" style="max-width: 636px;">
+              <div class="parallax-layer" data-depth="0.05">
+                <img
+                  src="https://silicon.createx.studio/assets/img/landing/saas-5/use-cases/task-automation/circle-1.png"
+                  alt="Vòng tròn 1">
+              </div>
+              <div class="parallax-layer" data-depth="0.1">
+                <img
+                  src="https://silicon.createx.studio/assets/img/landing/saas-5/use-cases/task-automation/circle-2.png"
+                  alt="Vòng tròn 2">
+              </div>
+              <div class="parallax-layer" data-depth="0.15">
+                <img
+                  src="https://silicon.createx.studio/assets/img/landing/saas-5/use-cases/task-automation/circle-3.png"
+                  alt="Vòng tròn 3">
+              </div>
+              <div class="parallax-layer" data-depth="0.2">
+                <div
+                  class="position-absolute top-50 start-50 translate-middle bg-primary rounded-circle shadow-primary p-4">
+                  <div class="h1 text-white lh-1 p-sm-1 p-lg-3 m-1">AI</div>
+                </div>
+              </div>
+              <div class="parallax-layer" style="padding-right: 28.7%; padding-left: 57%;" data-depth="0.3">
+                <div class="position-relative">
+                  <div class="ratio ratio-1x1"></div>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 bg-white rounded-circle d-dark-mode-none"
+                    style="box-shadow: 0 12px 48px -8px rgba(189, 196, 221, .35);"></span>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 rounded-circle d-none d-dark-mode-block"
+                    style="background-color: #212435;"></span>
+                  <svg class="position-absolute top-0 start-0 zindex-2 text-dark" viewBox="0 0 92 91"
+                    fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M46.4935 24.9077C34.8988 24.9077 25.4961 34.3472 25.4961 45.9917C25.4961 55.3052 31.5126 63.2065 39.8601 65.9968C40.9101 66.1911 41.2933 65.5401 41.2933 64.981C41.2933 64.4796 41.275 63.154 41.2645 61.3952C35.4238 62.6683 34.1901 58.5681 34.1901 58.5681C33.2372 56.1321 31.8591 55.4837 31.8591 55.4837C29.9507 54.1765 32.0008 54.2027 32.0008 54.2027C34.1087 54.3523 35.2165 56.3762 35.2165 56.3762C37.0907 59.5971 40.1331 58.6678 41.3301 58.1271C41.5191 56.7647 42.0625 55.8355 42.6636 55.3078C38.0016 54.775 33.0981 52.9663 33.0981 44.8892C33.0981 42.5871 33.9171 40.705 35.2611 39.2297C35.0432 38.6968 34.324 36.5522 35.4658 33.6516C35.4658 33.6516 37.2298 33.0846 41.2408 35.812C42.9156 35.3447 44.7111 35.1111 46.4987 35.1032C48.2811 35.1137 50.0792 35.3447 51.7566 35.8146C55.765 33.0872 57.5263 33.6542 57.5263 33.6542C58.6708 36.5575 57.9516 38.6995 57.7363 39.2323C59.083 40.7076 59.8941 42.5897 59.8941 44.8918C59.8941 52.99 54.9853 54.7723 50.3076 55.2947C51.061 55.9457 51.733 57.232 51.733 59.1981C51.733 62.0173 51.7067 64.2906 51.7067 64.981C51.7067 65.5453 52.0847 66.2016 53.1505 65.9942C61.4848 63.2012 67.4961 55.3026 67.4961 45.9917C67.4961 34.3472 58.0933 24.9077 46.4935 24.9077Z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="parallax-layer" style="padding-right: 60%; padding-left: 27.6%;" data-depth="0.45">
+                <div class="position-relative" style="top: 13.3%;">
+                  <div class="ratio ratio-1x1"></div>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 bg-white rounded-circle d-dark-mode-none"
+                    style="box-shadow: 0 12px 48px -8px rgba(189, 196, 221, .35);"></span>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 rounded-circle d-none d-dark-mode-block"
+                    style="background-color: #212435;"></span>
+                  <svg class="position-absolute top-0 start-0 zindex-2" viewBox="0 0 80 80"
+                    xmlns="http://www.w3.org/2000/svg" fill="none">
+                    <path
+                      d="M24.233 52.279l1.671 2.898c.347.61.847 1.09 1.434 1.439l5.993-4.249.011-6.1-5.98-2.694-5.99 2.673c-.001.675.172 1.35.519 1.96l2.343 4.074z"
+                      fill="#06d" />
+                    <path
+                      d="M40.392 34.091l.313-7.946-6.279-2.424c-.588.347-1.09.825-1.439 1.434l-11.09 19.133c-.349.609-.525 1.283-.526 1.958l11.97.021 7.052-12.175z"
+                      fill="#00ad3c" />
+                    <path
+                      d="M40.392 34.091l5.752-3.094.251-7.254c-.587-.349-1.261-.525-1.958-.526l-8.053-.014c-.696-.001-1.371.193-1.96.519l5.967 10.37z"
+                      fill="#00831e" />
+                    <path
+                      d="M47.401 46.292l-14.059-.025-6.004 10.349c.587.349 1.261.525 1.958.526l22.112.039c.697.001 1.371-.193 1.96-.519l.023-6.951-5.99-3.419z"
+                      fill="#0084ff" />
+                    <path
+                      d="M53.367 56.662c.588-.347 1.09-.825 1.439-1.434l.699-1.196 3.34-5.761c.349-.609.525-1.283.526-1.958l-6.919-3.641-5.03 3.619 5.945 10.37z"
+                      fill="#ff4131" />
+                    <path
+                      d="M53.341 34.768l-5.511-9.586c-.347-.61-.847-1.09-1.434-1.439l-6.004 10.349 7.008 12.2 11.949.021c.001-.675-.172-1.350-.519-1.96l-5.489-9.586z"
+                      fill="#ffba00" />
+                  </svg>
+                </div>
+              </div>
+              <div class="parallax-layer" style="padding-right: 85.8%;" data-depth="0.3">
+                <div class="position-relative" style="top: 32.7%;">
+                  <div class="ratio ratio-1x1"></div>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 bg-white rounded-circle d-dark-mode-none"
+                    style="box-shadow: 0 12px 48px -8px rgba(189, 196, 221, .35);"></span>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 rounded-circle d-none d-dark-mode-block"
+                    style="background-color: #212435;"></span>
+                  <svg class="position-absolute top-0 start-0 zindex-2" viewBox="0 0 92 92"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <g clip-path="url(#D)">
+                      <path
+                        d="M65.381 38.179c-.097-2.129-.435-3.583-.93-4.855a9.8 9.8 0 0 0-2.307-3.543c-.999-1.017-2.208-1.805-3.542-2.308-1.272-.494-2.726-.832-4.855-.929l-8.246-.121-8.246.12c-2.129.097-3.582.435-4.855.93a9.8 9.8 0 0 0-3.542 2.307c-1.017.999-1.805 2.208-2.307 3.542-.494 1.272-.832 2.726-.929 4.855l-.121 8.246.121 8.246c.097 2.129.435 3.582.93 4.855a9.8 9.8 0 0 0 2.307 3.542 9.8 9.8 0 0 0 3.543 2.307c1.272.495 2.726.833 4.855.93l8.246.12 8.246-.12c2.129-.097 3.582-.435 4.855-.93 2.686-1.039 4.81-3.163 5.849-5.849.495-1.272.832-2.726.93-4.855l.12-8.246-.12-8.246zm-3.6 16.328c-.089 1.95-.415 3.009-.688 3.714-.673 1.744-2.051 3.123-3.796 3.796-.705.274-1.764.6-3.714.688l-8.082.117c-5.341 0-5.973-.02-8.082-.117-1.95-.089-3.009-.415-3.714-.688a6.2 6.2 0 0 1-2.3-1.496c-.664-.645-1.175-1.431-1.496-2.3-.274-.705-.6-1.764-.688-3.714l-.117-8.082.117-8.082c.089-1.95.415-3.009.688-3.714a6.2 6.2 0 0 1 1.496-2.3c.645-.664 1.431-1.176 2.3-1.496.705-.274 1.764-.6 3.714-.689l8.082-.116h0l8.082.117c1.95.089 3.009.415 3.714.689a6.2 6.2 0 0 1 2.299 1.496 6.19 6.19 0 0 1 1.496 2.3c.274.705.6 1.764.689 3.714l.117 8.082-.117 8.082z"
+                        fill="url(#A)" />
+                      <path
+                        d="M45.501 36.155c-5.672 0-10.27 4.598-10.27 10.27s4.598 10.27 10.27 10.27 10.27-4.598 10.27-10.27-4.598-10.27-10.27-10.27zm0 16.937a6.67 6.67 0 0 1-6.666-6.667 6.67 6.67 0 0 1 6.667-6.666 6.67 6.67 0 0 1 6.666 6.666 6.67 6.67 0 0 1-6.667 6.667z"
+                        fill="url(#B)" />
+                      <path d="M58.577 35.749a2.4 2.4 0 0 1-4.8 0 2.4 2.4 0 0 1 4.8 0z" fill="url(#C)" />
+                    </g>
+                    <defs>
+                      <linearGradient id="A" x1="28.858" y1="63.068" x2="62.144" y2="29.782"
+                        gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#ffd600" />
+                        <stop offset=".5" stop-color="#ff0100" />
+                        <stop offset="1" stop-color="#d800b9" />
+                      </linearGradient>
+                      <linearGradient id="B" x1="38.239" y1="53.687" x2="52.763" y2="39.163"
+                        gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#ff6400" />
+                        <stop offset=".5" stop-color="#ff0100" />
+                        <stop offset="1" stop-color="#fd0056" />
+                      </linearGradient>
+                      <linearGradient id="C" x1="54.48" y1="37.446" x2="57.874" y2="34.052"
+                        gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#f30072" />
+                        <stop offset="1" stop-color="#e50097" />
+                      </linearGradient>
+                      <clipPath id="D">
+                        <path fill="#fff" transform="translate(25.501 26.425)" d="M0 0h40v40H0z" />
+                      </clipPath>
+                    </defs>
+                  </svg>
+                </div>
+              </div>
+              <div class="parallax-layer" style="padding-left: 85.8%;" data-depth="0.25">
+                <div class="position-relative" style="top: 35.5%;">
+                  <div class="ratio ratio-1x1"></div>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 bg-white rounded-circle d-dark-mode-none"
+                    style="box-shadow: 0 12px 48px -8px rgba(189, 196, 221, .35);"></span>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 rounded-circle d-none d-dark-mode-block"
+                    style="background-color: #212435;"></span>
+                  <svg class="position-absolute top-0 start-0 zindex-2" viewBox="0 0 92 92"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M34.921 50.845a4.211 4.211 0 1 1-4.21-4.211h4.211v4.211zm2.105 0a4.211 4.211 0 1 1 8.421 0v10.526a4.211 4.211 0 0 1-8.421 0V50.845z"
+                      fill="#ff185b" />
+                    <path
+                      d="M41.236 34.003a4.211 4.211 0 1 1 4.211-4.21v4.211h-4.211zm0 2.105a4.211 4.211 0 1 1 0 8.421H30.71a4.211 4.211 0 1 1 0-8.421h10.526z"
+                      fill="#00c5f1" />
+                    <path
+                      d="M58.079 40.319a4.211 4.211 0 1 1 4.21 4.211h-4.211v-4.211zm-2.106 0a4.211 4.211 0 1 1-8.421 0V29.793a4.211 4.211 0 1 1 8.421 0v10.526z"
+                      fill="#00b67b" />
+                    <path
+                      d="M51.763 57.161a4.21 4.21 0 1 1-4.211 4.211v-4.211h4.211zm0-2.105a4.211 4.211 0 1 1 0-8.421h10.526a4.211 4.211 0 1 1 0 8.421H51.763z"
+                      fill="#ffb20f" />
+                  </svg>
+                </div>
+              </div>
+              <div class="parallax-layer" style="padding-right: 27.8%; padding-left: 62.9%;" data-depth="0.35">
+                <div class="position-relative" style="top: 30.7%;">
+                  <div class="ratio ratio-1x1"></div>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 bg-white rounded-circle d-dark-mode-none"
+                    style="box-shadow: 0 12px 48px -8px rgba(189, 196, 221, .45);"></span>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 rounded-circle d-none d-dark-mode-block"
+                    style="background-color: #212435;"></span>
+                  <svg class="position-absolute top-0 start-0 zindex-2" viewBox="0 0 62 62" fill="#03a9f4"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M44.73 22.4611C43.6887 22.9178 42.5792 23.2206 41.4225 23.3676C42.6125 22.6571 43.5207 21.5406 43.9477 20.1948C42.8382 20.8563 41.6132 21.3236 40.3077 21.5843C39.2542 20.4626 37.7527 19.7678 36.1147 19.7678C32.9367 19.7678 30.3782 22.3473 30.3782 25.5096C30.3782 25.9646 30.4167 26.4021 30.5112 26.8186C25.739 26.5858 21.5162 24.2986 18.6795 20.8143C18.1842 21.6736 17.8937 22.6571 17.8937 23.7158C17.8937 25.7038 18.9175 27.4661 20.4435 28.4863C19.5212 28.4688 18.6165 28.2011 17.85 27.7793C17.85 27.7968 17.85 27.8196 17.85 27.8423C17.85 30.6318 19.8397 32.9488 22.449 33.4826C21.9817 33.6103 21.4725 33.6716 20.944 33.6716C20.5765 33.6716 20.2055 33.6506 19.8572 33.5736C20.601 35.8468 22.7115 37.5181 25.221 37.5723C23.268 39.1001 20.7882 40.0206 18.1037 40.0206C17.633 40.0206 17.1815 39.9996 16.73 39.9418C19.2727 41.5816 22.2862 42.5178 25.536 42.5178C36.099 42.5178 41.874 33.7678 41.874 26.1833C41.874 25.9296 41.8652 25.6846 41.853 25.4413C42.9922 24.6328 43.9495 23.6231 44.73 22.4611Z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="parallax-layer" style="padding-right: 45%; padding-left: 45%;" data-depth="0.45">
+                <div class="position-relative" style="top: 73.5%;">
+                  <div class="ratio ratio-1x1"></div>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 bg-white rounded-circle d-dark-mode-none"
+                    style="box-shadow: 0 12px 48px -8px rgba(189, 196, 221, .45);"></span>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 rounded-circle d-none d-dark-mode-block"
+                    style="background-color: #212435;"></span>
+                  <svg class="position-absolute top-0 start-0 zindex-2" viewBox="0 0 61 62" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M38.7451 44.777H22.1996C21.1496 44.777 20.2905 43.9179 20.2905 42.8679V18.6861C20.2905 17.6361 21.1496 16.777 22.1996 16.777H33.6542L40.6542 23.777V42.8679C40.6542 43.9179 39.7951 44.777 38.7451 44.777Z"
+                      fill="#00ad3c" />
+                    <path d="M33.6543 16.777L40.6543 23.777H33.6543V16.777Z" fill="#00831e" />
+                    <path
+                      d="M24.1089 27.7543V36.6634H36.8361V27.7543H24.1089ZM29.6771 35.0724H25.6999V33.0043H29.6771V35.0724ZM29.6771 31.4134H25.6999V29.3452H29.6771V31.4134ZM35.2453 35.0724H31.268V33.0043H35.2453V35.0724ZM35.2453 31.4134H31.268V29.3452H35.2453V31.4134Z"
+                      fill="#fbffff" />
+                  </svg>
+                </div>
+              </div>
+              <div class="parallax-layer" style="padding-right: 73.3%; padding-left: 11.1%;" data-depth="0.25">
+                <div class="position-relative" style="top: 78.8%;">
+                  <div class="ratio ratio-1x1"></div>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 bg-white rounded-circle d-dark-mode-none"
+                    style="box-shadow: 0 12px 48px -8px rgba(189, 196, 221, .35);"></span>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 rounded-circle d-none d-dark-mode-block"
+                    style="background-color: #212435;"></span>
+                  <svg class="position-absolute top-0 start-0 zindex-2" viewBox="0 0 102 102" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M33.1883 66.9909H39.8702V50.7636L35.4948 43.1234L30.3247 43.6045V64.1273C30.3247 65.7094 31.6062 66.9909 33.1883 66.9909Z"
+                      fill="#0085f7" />
+                    <path
+                      d="M62.7793 66.9909H69.4612C71.0433 66.9909 72.3248 65.7094 72.3248 64.1273V43.6045L67.1621 43.1234L62.7794 50.7636V66.9909H62.7793Z"
+                      fill="#00a94b" />
+                    <path
+                      d="M62.7794 38.3545L58.8545 45.8442L62.7794 50.7636L72.3249 43.6045V39.7863C72.3249 36.2473 68.2848 34.2261 65.4522 36.35L62.7794 38.3545Z"
+                      fill="#ffbc00" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M39.8704 50.7636L36.1304 42.8632L39.8704 38.3545L51.3249 46.9454L62.7795 38.3545V50.7636L51.3249 59.3545L39.8704 50.7636Z"
+                      fill="#ff4131" />
+                    <path
+                      d="M30.3247 39.7863V43.6045L39.8702 50.7636V38.3545L37.1974 36.35C34.3648 34.2261 30.3247 36.2473 30.3247 39.7863Z"
+                      fill="#e51c19" />
+                  </svg>
+                </div>
+              </div>
+              <div class="parallax-layer" style="padding-right: 68.2%; padding-left: 21%;" data-depth="0.4">
+                <div class="position-relative" style="top: 52.9%;">
+                  <div class="ratio ratio-1x1"></div>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 bg-white rounded-circle d-dark-mode-none"
+                    style="box-shadow: 0 12px 48px -8px rgba(189, 196, 221, .4);"></span>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 rounded-circle d-none d-dark-mode-block"
+                    style="background-color: #212435;"></span>
+                  <svg class="position-absolute top-0 start-0 zindex-2" viewBox="0 0 72 71"
+                    xmlns="http://www.w3.org/2000/svg" fill="#0061ff">
+                    <path
+                      d="M35.8477 27.045L27.8477 32.1402L35.8477 37.2356L27.8477 42.3308L19.8477 37.2356L27.8477 32.1402L19.8477 27.045L27.8477 21.9498L35.8477 27.045Z" />
+                    <path d="M27.8237 44.0212L35.8237 38.926L43.8237 44.0212L35.8237 49.1164L27.8237 44.0212Z" />
+                    <path
+                      d="M35.8477 37.2356L43.8477 32.1402L35.8477 27.045L43.8477 21.9498L51.8477 27.045L43.8477 32.1402L51.8477 37.2356L43.8477 42.3308L35.8477 37.2356Z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="parallax-layer" style="padding-right: 16%; padding-left: 71.4%;" data-depth="0.3">
+                <div class="position-relative" style="top: 67.6%;">
+                  <div class="ratio ratio-1x1"></div>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 bg-white rounded-circle d-dark-mode-none"
+                    style="box-shadow: 0 12px 48px -8px rgba(189, 196, 221, .35);"></span>
+                  <span class="position-absolute top-0 start-0 w-100 h-100 rounded-circle d-none d-dark-mode-block"
+                    style="background-color: #212435;"></span>
+                  <svg class="position-absolute top-0 start-0 zindex-2" viewBox="0 0 82 81" fill="#5865f2"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M55.3042 27.7464C52.7547 26.5766 50.0208 25.7147 47.1623 25.2211C47.1103 25.2115 47.0582 25.2354 47.0314 25.2829C46.6798 25.9083 46.2903 26.7241 46.0176 27.3654C42.9431 26.905 39.8844 26.905 36.873 27.3654C36.6002 26.7099 36.1966 25.9083 35.8434 25.2829C35.8166 25.2369 35.7645 25.2131 35.7125 25.2211C32.8556 25.7131 30.1217 26.575 27.5706 27.7464C27.5485 27.7559 27.5296 27.7718 27.5171 27.7924C22.3314 35.5397 20.9108 43.0965 21.6077 50.5597C21.6108 50.5961 21.6313 50.6311 21.6597 50.6533C25.081 53.1659 28.3953 54.6912 31.6478 55.7023C31.6999 55.7182 31.755 55.6992 31.7881 55.6563C32.5575 54.6056 33.2434 53.4977 33.8314 52.3326C33.8661 52.2644 33.833 52.1834 33.762 52.1565C32.6742 51.7438 31.6383 51.2406 30.6418 50.6693C30.563 50.6233 30.5567 50.5105 30.6292 50.4565C30.8389 50.2994 31.0487 50.1359 31.2489 49.9708C31.2852 49.9407 31.3356 49.9343 31.3782 49.9533C37.9245 52.9422 45.0116 52.9422 51.4806 49.9533C51.5231 49.9327 51.5736 49.9391 51.6114 49.9692C51.8117 50.1343 52.0214 50.2993 52.2327 50.4565C52.3052 50.5104 52.3004 50.6232 52.2217 50.6692C51.2252 51.2517 50.1893 51.7437 49.0999 52.1548C49.0289 52.1818 48.9974 52.2643 49.0321 52.3325C49.6328 53.496 50.3187 54.6039 51.0738 55.6547C51.1054 55.6991 51.1621 55.7182 51.2142 55.7022C54.4825 54.6912 57.7967 53.1658 61.2181 50.6532C61.2481 50.6311 61.267 50.5977 61.2701 50.5612C62.1042 41.933 59.8731 34.4381 55.356 27.794C55.3451 27.7718 55.3262 27.7559 55.3042 27.7464ZM34.8092 46.0154C32.8383 46.0154 31.2143 44.206 31.2143 41.9838C31.2143 39.7617 32.8067 37.9522 34.8092 37.9522C36.8272 37.9522 38.4355 39.7775 38.4039 41.9838C38.4039 44.206 36.8114 46.0154 34.8092 46.0154ZM48.1003 46.0154C46.1296 46.0154 44.5056 44.206 44.5056 41.9838C44.5056 39.7617 46.098 37.9522 48.1003 37.9522C50.1185 37.9522 51.7267 39.7775 51.6952 41.9838C51.6952 44.206 50.1185 46.0154 48.1003 46.0154Z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-5 col-xl-4 offset-lg-1 text-center text-md-start">
+            <h3 class="h2 mb-lg-4">Tự động hóa soạn thảo bản án</h3>
+            <p class="fs-lg pb-lg-2 mb-4">Tích hợp AI thông minh của chúng tôi với các công cụ bạn đã sử dụng để tự động
+              hóa quá trình soạn thảo bản án, tăng năng suất và hiệu quả của đội ngũ pháp lý lên gấp 10 lần.</p>
+            <a href="#" class="btn btn-outline-primary rounded-pill">
+              Tìm hiểu thêm
+              <i class="bx bx-right-arrow-alt fs-lg ms-2 me-n1"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Use case -->
+        <div class="row align-items-center justify-content-center py-4 py-md-5 my-2 my-sm-3 my-md-0 my-xl-3">
+          <div class="col-11 col-sm-9 col-md-7 col-lg-6 offset-lg-1 order-md-2 pb-2 pb-sm-3 pb-md-0 mb-4 mb-md-0">
+            <div class="parallax" style="max-width: 636px;">
+              <div class="parallax-layer" data-depth="0.1">
+                <img style="border: #d1d1d1 1px solid !important;" src="https://res.cloudinary.com/dl31sfjmr/image/upload/v1751691162/light_screen_wdkabv.png"
+                  class="d-dark-mode-none rounded-3" style="box-shadow: 0 10.2px 41px -6.8px rgba(189, 196, 221, .30);"
+                  alt="Giao diện chatbot pháp lý">
+                <img style="border: #ffffff 1px solid !important;" src="https://res.cloudinary.com/dl31sfjmr/image/upload/v1751690636/dark_screen_d5tbur.png"
+                  class="d-none d-dark-mode-block rounded-3" style="box-shadow: 0 8px 30px -4px rgba(8, 11, 18, .35);"
+                  alt="Giao diện chatbot pháp lý">
+              </div>
+              <!-- <div class="parallax-layer" data-depth="0.15">
+                <img
+                  src=""
+                  class="d-dark-mode-none" alt="Tin nhắn">
+                <img src=""
+                  class="d-none d-dark-mode-block" alt="Tin nhắn">
+              </div>
+              <div class="parallax-layer" data-depth="0.25">
+                <img
+                  src=""
+                  class="d-dark-mode-none" alt="Tin nhắn">
+                <img src=""
+                  class="d-none d-dark-mode-block" alt="Tin nhắn">
+              </div>
+              <div class="parallax-layer" data-depth="0.35">
+                <img
+                  src=""
+                  class="d-dark-mode-none" alt="Tin nhắn">
+                <img src=""
+                  class="d-none d-dark-mode-block" alt="Tin nhắn">
+              </div> -->
+            </div>
+          </div>
+          <div class="col-md-5 col-xl-4 offset-xl-1 order-md-1 text-center text-md-start">
+            <h3 class="h2 mb-lg-4">Chatbot pháp lý tiên tiến</h3>
+            <p class="fs-lg pb-lg-2 mb-4">Tích hợp liền mạch xử lý ngôn ngữ tự nhiên và khả năng học máy vào chatbot
+              pháp lý của bạn, mang lại trải nghiệm cá nhân hóa cho người dùng cuối.</p>
+            <a href="#" class="btn btn-outline-primary rounded-pill">
+              Tìm hiểu thêm
+              <i class="bx bx-right-arrow-alt fs-lg ms-2 me-n1"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- More button -->
+        <div
+          class="d-flex flex-column flex-sm-row align-items-center justify-content-center gap-3 gap-sm-4 pt-4 pb-3 py-md-5 my-1 my-sm-3 my-md-0 my-xl-3">
+          <div class="fs-xl">Và nhiều ứng dụng khác...</div>
+          <a href="#" class="btn btn-lg btn-outline-primary rounded-pill">Khám phá tất cả ứng dụng</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map -->
+    <section class="bg-dark py-5" data-bs-theme="dark">
+      <div class="container pt-2 py-sm-3 py-md-4 py-lg-5 my-xxl-3">
+        <div class="row pt-lg-2 pt-xl-3">
+          <div class="col-md-6">
+            <h2 class="h1 pe-xxl-5 me-xl-4 mb-md-0">Các <span class="text-warning">trung tâm dữ liệu</span> của chúng
+              tôi trên toàn cầu. Truy cập API từ bất kỳ đâu</h2>
+          </div>
+          <div class="col-md-6 col-xl-5 offset-xl-1">
+            <p class="text-body fs-xl mb-0">Trung tâm dữ liệu của chúng tôi là thành phần cốt lõi của cơ sở hạ tầng toàn
+              cầu, cung cấp tài nguyên tính toán đáng tin cậy và có thể mở rộng cho khách hàng trên toàn thế giới. Chúng
+              tôi cung cấp một nền tảng phân tán và bền vững, hỗ trợ các khối lượng công việc đòi hỏi cao nhất.</p>
+          </div>
+        </div>
+        <div class="pt-5 mt-sm-2 mt-md-3 mt-lg-4 mt-xl-5">
+          <img src="https://silicon.createx.studio/assets/img/landing/saas-5/map.png" alt="Bản đồ">
+        </div>
+      </div>
+    </section>
+
+     <!-- Video -->
+    <section class="position-relative py-5">
+      <span class="position-absolute top-0 start-0 w-100 h-100 d-dark-mode-none" style="background: linear-gradient(360deg, #fff 5.39%, #f3f6ff 78.66%);"></span>
+      <span class="position-absolute top-0 start-0 w-100 h-100 d-none d-dark-mode-block" style="background: linear-gradient(360deg, #0b0f19 5.39%, rgba(255, 255, 255, .04) 78.66%);"></span>
+      <div class="container position-relative zindex-2 py-2 py-sm-3 py-sm-4 py-md-5">
+        <div class="row align-items-center py-lg-2 py-xl-3 my-xl-1 my-xxl-3">
+          <div class="col-md-5 col-xl-4">
+            <h2 class="h1 pb-2 pb-sm-3 mb-md-0">Tìm hiểu <span class="text-gradient-primary">cách Legalmind hoạt động</span> qua video giới thiệu ngắn</h2>
+          </div>
+          <div class="col-md-7 offset-xl-1">
+            <div class="position-relative">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center zindex-5">
+                <a href="https://www.youtube.com/watch?v=ADpOLD2z1Ns" class="btn btn-video btn-icon btn-xl bg-white" target="_blank" rel="noopener noreferrer" aria-label="Phát video trên YouTube">
+                  <i class="fas fa-play"></i>
+                </a>
+              </div>
+              <img src="https://silicon.createx.studio/assets/img/landing/saas-5/video-cover-light.jpg" class="d-dark-mode-none rounded-3" alt="Ảnh bìa video">
+              <img src="https://silicon.createx.studio/assets/img/landing/saas-5/video-cover-dark.png" class="d-none d-dark-mode-block rounded-3" alt="Ảnh bìa video">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="position-relative pt-2 pt-sm-0 pb-lg-4">
+      <div class="container pb-2">
+        <h2 class="h1 text-center">Được tin dùng bởi các cơ quan pháp lý hàng đầu</h2>
+        <p class="fs-lg text-center pb-4 pb-lg-5 mb-2 mb-sm-3 mb-xl-4">Tìm hiểu lý do tại sao các cơ quan pháp lý hàng
+          đầu trên toàn cầu lựa chọn chúng tôi</p>
+        <div class="masonry-grid row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4 g-sm-3 g-md-4">
+          <!-- Item -->
+          <div class="masonry-grid-item col">
+            <div class="card border-0 bg-secondary p-1 p-sm-0 p-md-2">
+              <img
+                src="https://silicon.createx.studio/assets/img/landing/app-showcase-3/integrations/envato-color-light.svg"
+                class="d-block d-dark-mode-none mx-auto" width="165" alt="Envato">
+              <img
+                src="https://silicon.createx.studio/assets/img/landing/app-showcase-3/integrations/envato-color-dark.svg"
+                class="d-none d-dark-mode-block mx-auto" width="165" alt="Tòa án tối cao">
+              <div class="card-body text-center">
+                <p class="fs-lg mb-0">"Legalmind đã giúp chúng tôi tối ưu hóa quy trình truy vấn và soạn thảo bản án,
+                  giảm đáng kể thời gian xử lý các vụ việc phức tạp."</p>
+                <div class="d-flex justify-content-center align-items-center pt-3 mt-2">
+                  <img src="https://silicon.createx.studio/assets/img/avatar/01.jpg" class="rounded-circle" width="48"
+                    alt="Chân dung">
+                  <div class="ps-3">
+                    <h6 class="fw-semibold mb-1">Nguyễn Văn A</h6>
+                    <p class="fs-sm text-muted mb-0">Thẩm phán, Tòa án Tối cao</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item -->
+          <div class="masonry-grid-item col">
+            <div class="card border-0 bg-secondary p-1 p-sm-0 p-md-2">
+              <img
+                src="https://silicon.createx.studio/assets/img/landing/app-showcase-3/integrations/shopify-color-light.svg"
+                class="d-block d-dark-mode-none mx-auto" width="165" alt="Viện Kiểm sát Nhân dân">
+              <img
+                src="https://silicon.createx.studio/assets/img/landing/app-showcase-3/integrations/shopify-color-dark.svg"
+                class="d-none d-dark-mode-block mx-auto" width="165" alt="Viện Kiểm sát Nhân dân">
+              <div class="card-body text-center">
+                <p class="fs-lg mb-0">"Hệ thống AI của Legalmind cung cấp phân tích án lệ chính xác, giúp chúng tôi đưa
+                  ra các quyết định truy tố dựa trên dữ liệu đáng tin cậy."</p>
+                <div class="d-flex justify-content-center align-items-center pt-3 mt-2">
+                  <img src="https://silicon.createx.studio/assets/img/avatar/02.jpg" class="rounded-circle" width="48"
+                    alt="Chân dung">
+                  <div class="ps-3">
+                    <h6 class="fw-semibold mb-1">Trần Thị B</h6>
+                    <p class="fs-sm text-muted mb-0">Kiểm sát viên, Viện Kiểm sát Nhân dân</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item -->
+          <div class="masonry-grid-item col">
+            <div class="card border-0 bg-secondary p-1 p-sm-0 p-md-2">
+              <img
+                src="https://silicon.createx.studio/assets/img/landing/app-showcase-3/integrations/firefox-color-light.svg"
+                class="d-block d-dark-mode-none mx-auto" width="165" alt="Văn phòng Luật sư ABC">
+              <img
+                src="https://silicon.createx.studio/assets/img/landing/app-showcase-3/integrations/firefox-color-dark.svg"
+                class="d-none d-dark-mode-block mx-auto" width="165" alt="Văn phòng Luật sư ABC">
+              <div class="card-body text-center">
+                <p class="fs-lg mb-0">"Tính năng tự động hóa soạn thảo bản án của Legalmind giúp văn phòng chúng tôi
+                  tiết kiệm thời gian và nâng cao hiệu quả tư vấn pháp lý."</p>
+                <div class="d-flex justify-content-center align-items-center pt-3 mt-2">
+                  <img src="https://silicon.createx.studio/assets/img/avatar/03.jpg" class="rounded-circle" width="48"
+                    alt="Chân dung">
+                  <div class="ps-3">
+                    <h6 class="fw-semibold mb-1">Lê Văn C</h6>
+                    <p class="fs-sm text-muted mb-0">Luật sư, Văn phòng Luật sư ABC</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Pricing / Comparison -->
+    <section class="position-relative bg-dark pt-lg-4 pt-xl-5"
+      style="background: linear-gradient(90deg, #0b0f19 0%, #172033 51.04%, #0b0f19 100%);">
+      <div class="jarallax position-absolute top-0 start-0 w-100 h-100" data-jarallax data-speed="0.4">
+        <div class="jarallax-img"
+          style="background-image: url(https://silicon.createx.studio/assets/img/landing/saas-5/pricing-bg-pattern.png);">
+        </div>
+      </div>
+      <div class="container position-relative zindex-2 pt-5" data-bs-theme="dark">
+        <h2 class="h1 text-center pt-2 pt-sm-3 pb-4 pb-md-5 mb-2 mb-md-0 mb-lg-2">Legalmind so sánh với Phát triển tùy
+          chỉnh</h2>
+        <div class="overflow-x-auto pb-4">
+          <div class="position-relative ms-n4 ms-md-0" style="min-width: 800px;">
+            <div
+              class="position-absolute top-0 start-50 translate-middle-x h-100 bg-secondary rounded-3 rounded-bottom-0 d-none d-lg-block"
+              style="width: 342px;"></div>
+            <div
+              class="position-absolute top-0 start-50 translate-middle-x h-100 bg-secondary rounded-3 rounded-bottom-0 d-lg-none"
+              style="width: 300px;"></div>
+
+            <!-- Row -->
+            <div class="row row-cols-3 align-items-center position-relative zindex-2 g-0">
+              <div class="col"> </div>
+              <div class="col py-2 py-md-3">
+                <div class="text-center py-4 mx-auto" style="width: 264px;">
+                  <h3 class="h4 mb-sm-4">Legalmind</h3>
+                  <a href="/register" class="btn btn-primary bg-gradient-primary w-100 border-0 rounded-pill mb-2">Bắt đầu -
+                    Miễn phí</a>
+                  <p class="text-body fs-xs mb-0">Giá của chúng tôi bắt đầu từ mức thấp nhất là 1.299 USD mỗi nhóm</p>
+                </div>
+              </div>
+              <div class="col text-center pe-lg-5">
+                <h3 class="h4 pt-3 pt-md-4 mb-0 mx-auto" style="width: 264px;">Phát triển nội bộ</h3>
+              </div>
+              <div class="position-relative w-100 opacity-50">
+                <span class="position-absolute top-0 start-0 w-100 h-1"
+                  style="background: linear-gradient(270deg, #0f1522 0%, rgba(11, 15, 25, 0) 54.17%, #0f1522 98.44%);"></span>
+                <span class="d-block w-100 h-1 bg-gradient-primary"></span>
+              </div>
+            </div>
+
+            <!-- Row -->
+            <div class="row row-cols-3 align-items-center position-relative zindex-2 g-0">
+              <div class="col py-3 py-md-4 ps-lg-5">
+                <div class="text-white opacity-80 fs-lg py-1 px-4 mx-auto" style="width: 208px;">Chi phí cơ sở hạ tầng
+                  mô hình dữ liệu</div>
+              </div>
+              <div class="col py-3 py-md-4">
+                <div class="text-center py-1 px-4 mx-auto" style="width: 264px;">
+                  <div class="text-white fs-lg fw-semibold">Đã bao gồm</div>
+                  <div class="text-body fs-xs">Khả năng AI/ML lưu trữ trên đám mây</div>
+                </div>
+              </div>
+              <div class="col py-3 py-md-4 pe-lg-5">
+                <div class="text-center py-1 px-4 mx-auto" style="width: 264px;">
+                  <div class="text-white fs-lg fw-semibold">Từ 10.000 USD đến 50.000 USD</div>
+                  <div class="text-body fs-xs">mỗi tháng</div>
+                </div>
+              </div>
+              <div class="position-relative w-100 opacity-50">
+                <span class="position-absolute top-0 start-0 w-100 h-1"
+                  style="background: linear-gradient(270deg, #0f1522 0%, rgba(11, 15, 25, 0) 54.17%, #0f1522 98.44%);"></span>
+                <span class="d-block w-100 h-1 bg-gradient-primary"></span>
+              </div>
+            </div>
+
+            <!-- Row -->
+            <div class="row row-cols-3 align-items-center position-relative zindex-2 g-0">
+              <div class="col py-3 py-md-4 ps-lg-5">
+                <div class="text-white opacity-80 fs-lg py-1 px-4 mx-auto" style="width: 208px;">Chi phí kỹ thuật</div>
+              </div>
+              <div class="col py-3 py-md-4">
+                <div class="text-center py-1 px-4 mx-auto" style="width: 264px;">
+                  <div class="text-white fs-lg fw-semibold">Đã bao gồm</div>
+                  <div class="text-body fs-xs">trong các gói cao cấp của chúng tôi</div>
+                </div>
+              </div>
+              <div class="col py-3 py-md-4 pe-lg-5">
+                <div class="text-center py-1 px-4 mx-auto" style="width: 264px;">
+                  <div class="text-white fs-lg fw-semibold">Từ 25.000 USD đến 30.000 USD</div>
+                  <div class="text-body fs-xs">mỗi kỹ sư mỗi tháng</div>
+                </div>
+              </div>
+              <div class="position-relative w-100 opacity-50">
+                <span class="position-absolute top-0 start-0 w-100 h-1"
+                  style="background: linear-gradient(270deg, #0f1522 0%, rgba(11, 15, 25, 0) 54.17%, #0f1522 98.44%);"></span>
+                <span class="d-block w-100 h-1 bg-gradient-primary"></span>
+              </div>
+            </div>
+
+            <!-- Row -->
+            <div class="row row-cols-3 align-items-center position-relative zindex-2 g-0">
+              <div class="col py-3 py-md-4 ps-lg-5">
+                <div class="text-white opacity-80 fs-lg py-1 px-4 mx-auto" style="width: 208px;">Thời gian triển khai
+                </div>
+              </div>
+              <div class="col py-4">
+                <div class="text-center py-1 px-4 mx-auto" style="width: 264px;">
+                  <div class="text-white fs-lg fw-semibold">Bắt đầu trong vài phút</div>
+                </div>
+              </div>
+              <div class="col py-3 py-md-4 pe-lg-5">
+                <div class="text-center py-1 px-4 mx-auto" style="width: 264px;">
+                  <div class="text-white fs-lg fw-semibold">Trung bình 6-9 tháng</div>
+                  <div class="text-body fs-xs">tùy thuộc vào trình độ đội ngũ</div>
+                </div>
+              </div>
+              <div class="position-relative w-100 opacity-50">
+                <span class="position-absolute top-0 start-0 w-100 h-1"
+                  style="background: linear-gradient(270deg, #0f1522 0%, rgba(11, 15, 25, 0) 54.17%, #0f1522 98.44%);"></span>
+                <span class="d-block w-100 h-1 bg-gradient-primary"></span>
+              </div>
+            </div>
+
+            <!-- Row -->
+            <div class="row row-cols-3 align-items-center position-relative zindex-2 g-0">
+              <div class="col py-3 py-md-4 ps-lg-5">
+                <div class="text-white opacity-80 fs-lg py-1 px-4 mx-auto" style="width: 208px;">Chi phí bảo trì & vận
+                  hành</div>
+              </div>
+              <div class="col py-3 py-md-4">
+                <div class="text-center py-1 px-4 mx-auto" style="width: 264px;">
+                  <div class="text-white fs-lg fw-semibold">Đã bao gồm</div>
+                  <div class="text-body fs-xs">trong các gói cao cấp của chúng tôi</div>
+                </div>
+              </div>
+              <div class="col py-3 py-md-4 pe-lg-5">
+                <div class="text-center py-1 px-4 mx-auto" style="width: 264px;">
+                  <div class="text-white fs-lg fw-semibold">Trung bình 20.000 USD</div>
+                  <div class="text-body fs-xs">mỗi kỹ sư mỗi tháng</div>
+                </div>
+              </div>
+              <div class="position-relative w-100 opacity-50">
+                <span class="position-absolute top-0 start-0 w-100 h-1"
+                  style="background: linear-gradient(270deg, #0f1522 0%, rgba(11, 15, 25, 0) 54.17%, #0f1522 98.44%);"></span>
+                <span class="d-block w-100 h-1 bg-gradient-primary"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-none d-xl-block" style="height: 200px;"></div>
+        <div class="d-none d-md-block d-xl-none" style="height: 260px;"></div>
+        <div class="d-md-none" style="height: 230px;"></div>
+        <div class="d-flex position-absolute bottom-0 start-0 w-100 overflow-hidden mb-n1"
+          style="color: var(--si-body-bg);">
+          <div class="position-relative start-50 translate-middle-x flex-shrink-0" style="width: 3774px;">
+            <svg width="3774" height="201" viewBox="0 0 3774 201" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M0 200.003C0 200.003 1137.52 0.188224 1873.5 0.000134392C2614.84 -0.189325 3774 200.003 3774 200.003H0Z"
+                fill="currentColor" />
+            </svg>
+          </div>
+        </div>
+    </section>
+  </div>
+  </main>
+  <!-- End of main content -->
+    <!-- Footer -->
+  <footer class="footer position-relative zindex-2 pb-3 pb-xl-0" style="padding-top: 80px">
+    <div class="d-none d-lg-block" style="margin-top: -70px;"></div>
+    <div class="d-none d-md-block d-lg-none" style="margin-top: -100px;"></div>
+    <div class="d-md-none" style="margin-top: -130px;"></div>
+    <div class="container">
+      <div class="row">
+
+        <!-- About links -->
+        <div class="col-12 col-xl-3 pb-sm-2 pb-md-3 mb-4 mb-lg-5 mb-xl-0">
+          <div class="d-flex align-items-center mb-3 mb-xl-0">
+            <div class="navbar-brand text-dark pb-xl-3 pe-2 pe-xl-0 mb-xl-2 me-4 me-xl-0">
+              <img src="https://silicon.createx.studio/assets/img/logo.svg" width="47" alt="Legalmind">
+              Legalmind
+            </div>
+            <!-- <select class="form-select form-select-sm d-xl-none" style="max-width: 130px;">
+              <option value="Tiếng Việt">Tiếng Việt</option>
+              <option value="English">English</option>
+              <option value="Français">Français</option>
+              <option value="Deutsch">Deutsch</option>
+              <option value="Italiano">Italiano</option>
+            </select> -->
+          </div>
+          <div class="d-flex flex-wrap flex-xl-column ps-xl-5 ms-n3 ms-xl-2">
+            <ul class="nav flex-xl-column">
+              <li class="nav-item mb-1">
+                <a href="#" class="nav-link py-1 px-xl-0">Giới thiệu</a>
+              </li>
+              <li class="nav-item mb-1">
+                <a href="#" class="nav-link py-1 px-xl-0">Tuyển dụng<span
+                    class="badge bg-primary bg-opacity-10 rounded-pill ms-2"><span class="text-gradient-primary">Đang
+                      tuyển</span></span></a>
+              </li>
+              <li class="nav-item mb-1">
+                <a href="#" class="nav-link py-1 px-xl-0">Liên hệ</a>
+              </li>
+              <li class="nav-item mb-1">
+                <a href="#" class="nav-link py-1 px-xl-0">Điều khoản dịch vụ</a>
+              </li>
+            </ul>
+            <ul class="nav flex-xl-column pt-xl-3">
+              <li class="nav-item mb-1">
+                <a href="#" class="nav-link py-1 px-xl-0">GitHub</a>
+              </li>
+              <li class="nav-item mb-1">
+                <a href="#" class="nav-link py-1 px-xl-0">Twitter</a>
+              </li>
+              <li class="nav-item mb-1">
+                <a href="#" class="nav-link py-1 px-xl-0">Telegram</a>
+              </li>
+            </ul>
+          </div>
+          <div class="d-none d-xl-block pt-4 ps-5 ms-2">
+            <!-- <select class="form-select form-select-sm" style="max-width: 130px;">
+              <option value="Tiếng Việt">Tiếng Việt</option>
+              <option value="English">English</option>
+              <option value="Français">Français</option>
+              <option value="Deutsch">Deutsch</option>
+              <option value="Italiano">Italiano</option>
+            </select> -->
+          </div>
+        </div>
+
+        <!-- AI models links -->
+        <div class="col-sm-6 col-md-4 col-xl-3 pb-1 mb-4">
+          <h5 class="pb-md-1">Mô hình AI</h5>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="position-relative flex-shrink-0 p-3">
+              <span
+                class="position-absolute top-0 start-0 w-100 h-100 rounded-circle bg-gradient-primary opacity-10"></span>
+              <span class="position-relative d-flex zindex-2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M18 1.5C18.3442 1.5 18.6441 1.73422 18.7276 2.0681L18.9865 3.10356C19.2216 4.04406 19.9559 4.7784 20.8964 5.01353L21.9319 5.27239C22.2658 5.35586 22.5 5.65585 22.5 6C22.5 6.34415 22.2658 6.64414 21.9319 6.72761L20.8964 6.98647C19.9559 7.2216 19.2216 7.95594 18.9865 8.89644L18.7276 9.9319C18.6441 10.2658 18.3442 10.5 18 10.5C17.6558 10.5 17.3559 10.2658 17.2724 9.9319L17.0135 8.89644C16.7784 7.95594 16.0441 7.2216 15.1036 6.98647L14.0681 6.72761C13.7342 6.64414 13.5 6.34415 13.5 6C13.5 5.65585 13.7342 5.35586 14.0681 5.27239L15.1036 5.01353C16.0441 4.7784 16.7784 4.04406 17.0135 3.10356L17.2724 2.0681C17.3559 1.73422 17.6558 1.5 18 1.5ZM18 4.59616C17.6534 5.17111 17.1711 5.65342 16.5962 6C17.1711 6.34658 17.6534 6.82889 18 7.40384C18.3466 6.82889 18.8289 6.34658 19.4038 6C18.8289 5.65342 18.3466 5.17111 18 4.59616ZM9 4.5C9.33486 4.5 9.62915 4.72198 9.72114 5.04396L10.5343 7.89015C10.8903 9.13593 11.8641 10.1097 13.1099 10.4657L15.956 11.2789C16.278 11.3709 16.5 11.6651 16.5 12C16.5 12.3349 16.278 12.6291 15.956 12.7211L13.1098 13.5343C11.8641 13.8903 10.8903 14.8641 10.5343 16.1099L9.72114 18.956C9.62915 19.278 9.33486 19.5 9 19.5C8.66514 19.5 8.37085 19.278 8.27886 18.956L7.46566 16.1098C7.10972 14.8641 6.13593 13.8903 4.89015 13.5343L2.04396 12.7211C1.72198 12.6291 1.5 12.3349 1.5 12C1.5 11.6651 1.72198 11.3709 2.04396 11.2789L4.89015 10.4657C6.13593 10.1097 7.10972 9.13593 7.46566 7.89015L8.27886 5.04396C8.37085 4.72198 8.66514 4.5 9 4.5ZM9 7.98004L8.90795 8.30223C8.40963 10.0463 7.04632 11.4096 5.30223 11.9079L4.98004 12L5.30223 12.0921C7.04632 12.5904 8.40963 13.9537 8.90795 15.6978L9 16.02L9.09205 15.6978C9.59037 13.9537 10.9537 12.5904 12.6978 12.0921L13.02 12L12.6978 11.9079C10.9537 11.4096 9.59037 10.0463 9.09205 8.30223L9 7.98004ZM16.5 15C16.8228 15 17.1094 15.2066 17.2115 15.5128L17.6058 16.6956C17.7551 17.1435 18.1065 17.4949 18.5544 17.6442L19.7372 18.0385C20.0434 18.1406 20.25 18.4272 20.25 18.75C20.25 19.0728 20.0434 19.3594 19.7372 19.4615L18.5544 19.8558C18.1065 20.0051 17.7551 20.3565 17.6058 20.8044L17.2115 21.9872C17.1094 22.2934 16.8228 22.5 16.5 22.5C16.1772 22.5 15.8906 22.2934 15.7885 21.9872L15.3942 20.8044C15.2449 20.3565 14.8935 20.0051 14.4456 19.8558L13.2628 19.4615C12.9566 19.3594 12.75 19.0728 12.75 18.75C12.75 18.4272 12.9566 18.1406 13.2628 18.0385L14.4456 17.6442C14.8935 17.4949 15.2449 17.1435 15.3942 16.6956L15.7885 15.5128C15.8906 15.2066 16.1772 15 16.5 15ZM16.5 17.8354C16.2653 18.203 15.953 18.5153 15.5854 18.75C15.953 18.9847 16.2653 19.297 16.5 19.6646C16.7347 19.297 17.047 18.9847 17.4146 18.75C17.047 18.5153 16.7347 18.203 16.5 17.8354Z"
+                    fill="url(#paint0_linear_11_19620)" />
+                  <defs>
+                    <linearGradient id="paint0_linear_11_19620" x1="1.5" y1="12.0502" x2="22.5" y2="12.0502"
+                      gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#6366F1" />
+                      <stop offset="0.5" stop-color="#8B5CF6" />
+                      <stop offset="1" stop-color="#D946EF" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </span>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Mô hình tạo sinh</a>
+              <div class="fs-xs">Tạo văn bản và hình ảnh</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-warning bg-opacity-10 rounded-circle lh-1 p-3">
+              <i class="bx bx-message-dots text-warning fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Nhận diện giọng nói</a>
+              <div class="fs-xs">Chuyển đổi giọng nói thành văn bản</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-success bg-opacity-10 rounded-circle lh-1 p-3">
+              <i class="bx bx-file-find text-success fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Chuyển đổi tệp</a>
+              <div class="fs-xs">Chuyển đổi các loại tệp khác nhau</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-info bg-opacity-10 rounded-circle lh-1 p-3">
+              <i class="bx bx-terminal text-info fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Tạo mã</a>
+              <div class="fs-xs">Tự động hoàn thành và tạo mã</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-danger bg-opacity-10 rounded-circle lh-1 p-3">
+              <i class="bx bx-search text-danger fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Tìm kiếm thông minh</a>
+              <div class="fs-xs">Phản hồi các truy vấn tìm kiếm</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrations links -->
+        <div class="col-sm-6 col-md-4 col-xl-3 pb-1 mb-4">
+          <h5 class="pb-md-1">Tích hợp</h5>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-secondary rounded-circle lh-1 p-3">
+              <i class="bx bx-share-alt text-primary fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Mạng xã hội</a>
+              <div class="fs-xs">Facebook, Instagram, Twitter...</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-secondary rounded-circle lh-1 p-3">
+              <i class="bx bx-cart-alt text-primary fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Thương mại điện tử</a>
+              <div class="fs-xs">Shopify, WordPress, Magento...</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-secondary rounded-circle lh-1 p-3">
+              <i class="bx bx-calendar text-primary fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Quản lý công việc/thời gian</a>
+              <div class="fs-xs">Trello, Notion, Asana, Teams...</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-secondary rounded-circle lh-1 p-3">
+              <i class="bx bx-envelope text-primary fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Ứng dụng email/trò chuyện</a>
+              <div class="fs-xs">Gmail, MailChimp, Telegram...</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-secondary rounded-circle lh-1 p-3">
+              <i class="bx bx-code-alt text-primary fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Trình chỉnh sửa mã</a>
+              <div class="fs-xs">VS Code, Web Storm, Atom...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resources links -->
+        <div class="col-md-4 col-xl-3 pb-1 mb-4">
+          <h5 class="pb-md-1">Tài nguyên</h5>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-secondary rounded-circle lh-1 p-3">
+              <i class="bx bx-file text-primary fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Tài liệu</a>
+              <div class="fs-xs">API, cơ sở kiến thức, hướng dẫn</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-secondary rounded-circle lh-1 p-3">
+              <i class="bx bx-info-circle text-primary fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Trung tâm hỗ trợ</a>
+              <div class="fs-xs">Câu hỏi thường gặp, bài viết, diễn đàn cộng đồng</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-secondary rounded-circle lh-1 p-3">
+              <i class="bx bx-edit text-primary fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Bài viết blog</a>
+              <div class="fs-xs">Tin tức và cập nhật gần đây</div>
+            </div>
+          </div>
+          <div class="position-relative d-flex align-items-center py-2 my-1">
+            <div class="bg-secondary rounded-circle lh-1 p-3">
+              <i class="bx bxl-github text-primary fs-4 lh-1"></i>
+            </div>
+            <div class="nav flex-column ps-3">
+              <a href="#" class="nav-link fw-bold stretched-link p-0">Dự án GitHub</a>
+              <div class="fs-xs">Sử dụng các dự án mã nguồn mở của chúng tôi</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-sm-center pb-3 py-sm-3 py-md-4 py-xl-5">
+        <p class="nav d-block fs-sm mb-0">
+          <span class="text-body">© Mọi quyền được bảo lưu. Được tạo bởi </span>
+          <a class="nav-link d-inline-block p-0" href="#" target="_blank" rel="noopener">LegalMind</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+
+
+  <!-- Back to top button -->
+  <a href="#top" class="btn-scroll-top" data-scroll>
+    <span class="btn-scroll-top-tooltip text-muted fs-sm me-2">Lên đầu trang</span>
+    <i class="btn-scroll-top-icon bx bx-chevron-up"></i>
+  </a>
+
+  <!-- Vendor Scripts -->
+  <script src="https://silicon.createx.studio/assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+  <script src="https://silicon.createx.studio/assets/vendor/shufflejs/dist/shuffle.min.js"></script>
+  <script src="https://silicon.createx.studio/assets/vendor/jarallax/dist/jarallax.min.js"></script>
+  <script src="https://silicon.createx.studio/assets/vendor/parallax-js/dist/parallax.min.js"></script>
+  <script src="https://silicon.createx.studio/assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="https://silicon.createx.studio/assets/vendor/lightgallery/lightgallery.min.js"></script>
+  <script src="https://silicon.createx.studio/assets/vendor/lightgallery/plugins/video/lg-video.min.js"></script>
+
+  <!-- Main Theme Script -->
+  <script src="https://silicon.createx.studio/assets/js/theme.min.js"></script>
 </body>
+
 </html>

@@ -199,9 +199,18 @@ def register():
     result = db.users.insert_one(user)
     return jsonify({'message': 'Đăng ký thành công'}), 201
 
+# @app.route('/')
+# def login_pages():
+#     return render_template('home.html')
+
+
 @app.route('/')
-def login_pages():
+def page_index():
     return render_template('index.html')
+
+@app.route('/home')
+def page_home():
+    return render_template('home.html')
 
 @app.route('/login')
 def login_page():

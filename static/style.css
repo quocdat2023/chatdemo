@@ -951,3 +951,106 @@ a{
     align-items: center;
     gap: 10px; /* Khoảng cách giữa các phần tử trong user-info */
 }
+
+@media (max-width: 640px) {
+  .sidebar {
+    width: 100vw;
+  }
+
+  .chat-area {
+    width: 100%;
+  }
+
+  /* Header Adjustments for user-info */
+  .header-info {
+    flex-wrap: wrap; /* Allow wrapping to prevent overflow */
+    gap: 0.5rem; /* Slightly reduce gap for compact layout */
+  }
+
+  .user-info {
+    margin-left: 0; /* Remove auto margin to prevent misalignment */
+    gap: 0.5rem; /* Reduce gap for mobile */
+    flex-wrap: nowrap; /* Keep user-info items in a single row */
+  }
+
+  .bot-avatar {
+    width: 2rem; /* Slightly smaller avatar */
+    height: 2rem;
+    font-size: 1rem;
+  }
+
+  .header-text h1 {
+    font-size: 1rem; /* Smaller header text */
+  }
+
+  .header-text p {
+    font-size: 0.75rem; /* Smaller subtitle text */
+  }
+
+  .menu-btn {
+    display: block; /* Ensure menu button is visible */
+  }
+
+  .welcome-section {
+    padding: 1rem;
+  }
+
+ .welcome-section h2 {
+    font-size: 1.25rem;
+  }
+
+  .messages {
+    padding: 0.5rem 0;
+  }
+
+  .message-content {
+    max-width: 100%;
+  }
+
+  .message.user .message-content,
+  .message.assistant .message-content {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  /* Add fade-in animation for assistant messages */
+  .message.assistant {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .message-bubble{
+    width: 85%;
+  }
+ #appSubtitle {
+    font-size: 0.875rem; /* Smaller subtitle text */
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    word-wrap: break-word; /* Cho phép từ xuống dòng */
+    white-space: normal; /* Đảm bảo văn bản có thể xuống dòng */
+    overflow-wrap: break-word; /* Tương tự như word-wrap, hỗ trợ cho các trình duyệt khác */
+}
+
+.conversation-title{
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  max-width: 325px; /* Giới hạn chiều rộng của div */
+  white-space: nowrap; /* Ngăn nội dung xuống dòng */
+  overflow: hidden; /* Ẩn nội dung vượt quá */
+  text-overflow: ellipsis; /* Hiển thị dấu ... khi nội dung bị cắt */
+
+}
+  .suggested-questions h3 {
+    font-size: 1rem; /* Smaller title for suggested questions */
+  }
+  .input-wrapper {
+    gap: 0.5rem;
+  }
+
+  #sendBtn {
+    padding: 0.75rem;
+    width: 2.75rem;
+  }
+}
