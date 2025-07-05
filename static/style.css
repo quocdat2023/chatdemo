@@ -1021,14 +1021,9 @@ a{
   .message-bubble{
     width: 85%;
   }
- #appSubtitle {
-    font-size: 0.875rem; /* Smaller subtitle text */
-    margin-top: 0.25rem;
-    color: var(--text-secondary);
-    word-wrap: break-word; /* Cho phép từ xuống dòng */
-    white-space: normal; /* Đảm bảo văn bản có thể xuống dòng */
-    overflow-wrap: break-word; /* Tương tự như word-wrap, hỗ trợ cho các trình duyệt khác */
-}
+ .header-text {
+  display: none;
+  }
 
 .conversation-title{
   font-weight: 500;
