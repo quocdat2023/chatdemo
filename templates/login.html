@@ -10,13 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jarallax/2.2.1/jarallax.min.css" rel="stylesheet">
-  <style>
+    <style>
         :root {
             --primary-color: #6366F1;
             --error-color: #dc3545;
             --success-color: #28a745;
             --text-muted: #adb5bd;
-            --input-text: #000000; /* Default input text color */
+            --input-text: #000000;
+            /* Default input text color */
         }
 
         [data-theme="dark"] {
@@ -25,7 +26,8 @@
             --input-border: #3b4a5e;
             --input-focus-bg: #34495e;
             --alert-bg: #1b263b;
-            --input-text: #ffffff; /* White text for dark mode */
+            --input-text: #ffffff;
+            /* White text for dark mode */
         }
 
         [data-theme="light"] {
@@ -35,7 +37,8 @@
             --input-focus-bg: #f8f9fa;
             --alert-bg: #e9ecef;
             --text-muted: #6c757d;
-            --input-text: #000000; /* Black text for light mode */
+            --input-text: #000000;
+            /* Black text for light mode */
         }
 
         body {
@@ -70,7 +73,8 @@
             font-size: 0.85rem;
         }
 
-        .text-muted, .form-check-label {
+        .text-muted,
+        .form-check-label {
             color: #cbd2d7 !important;
             font-size: 0.85rem;
         }
@@ -140,14 +144,17 @@
             font-weight: 500;
             margin-bottom: 0.5rem;
         }
-        .form-control{
-            color: white !important; /* Ensure input text is white in dark mode */
+
+        .form-control {
+            color: white !important;
+            /* Ensure input text is white in dark mode */
         }
 
         .form-control {
             background-color: var(--input-bg);
             border: 1px solid var(--input-border);
-            color: var(--input-text); /* Use theme-based text color */
+            color: var(--input-text);
+            /* Use theme-based text color */
             border-radius: 6px;
             padding: 0.75rem;
             transition: all 0.2s ease;
@@ -161,8 +168,10 @@
         }
 
         .form-control::placeholder {
-            color: var(--input-text); /* White placeholder text in dark mode */
-            opacity: 0.7; /* Slightly reduce opacity for better UX */
+            color: var(--input-text);
+            /* White placeholder text in dark mode */
+            opacity: 0.7;
+            /* Slightly reduce opacity for better UX */
         }
 
         .form-control.is-invalid {
@@ -171,8 +180,10 @@
         }
 
         .form-control[readonly] {
-            color: var(--input-text); /* Ensure readonly input text is white in dark mode */
-            opacity: 0.9; /* Slightly reduce opacity for readonly fields */
+            color: var(--input-text);
+            /* Ensure readonly input text is white in dark mode */
+            opacity: 0.9;
+            /* Slightly reduce opacity for readonly fields */
         }
 
         .invalid-feedback {
@@ -322,15 +333,9 @@
         <img class="jarallax-img" src="https://silicon.createx.studio/assets/img/landing/saas-5/hero-bg-pattern.png"
             alt="Background">
         <div class="login-container" role="main">
-                    <div id="login-message"></div>
-
             <h2>Đăng Nhập Tài Khoản</h2>
             <p class="description">Đăng nhập bằng Google hoặc sử dụng email và mật khẩu của bạn.</p>
-            <div id="messagesContainer"></div>
-            <button class="btn btn-google" id="googleLoginBtn">
-                <img src="https://www.google.com/favicon.ico" alt="Google Icon"> Đăng nhập bằng Google
-            </button>
-            <p class="text-center text-muted mt-3">hoặc đăng nhập bằng tài khoản:</p>
+            <div id="login-message"></div>
             <form id="loginForm" onsubmit="event.preventDefault(); login();">
                 <div class="mb-3">
                     <label for="email" class="form-label">Email <span class="sr-only">(bắt buộc)</span></label>
@@ -345,8 +350,8 @@
                     <div id="passwordFeedback" class="invalid-feedback"></div>
                 </div>
                 <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="remember">
-                    <label class="form-check-label" for="remember">Ghi nhớ mật khẩu</label>
+                    <!-- <input type="checkbox" class="form-check-input" id="remember">
+                    <label class="form-check-label" for="remember">Ghi nhớ mật khẩu</label> -->
                     <a href="/forgot_password" class="float-end text-muted">Quên mật khẩu?</a>
                 </div>
                 <button type="submit" class="btn btn-login" id="loginBtn">
