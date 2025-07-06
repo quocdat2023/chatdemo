@@ -15,10 +15,6 @@ from sentence_transformers import SentenceTransformer
 from bson import ObjectId
 import hashlib
 import os
-import smtplib
-from email.mime.text import MIMEText
-import random
-import string
 
 # Cấu hình logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -26,23 +22,18 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with a secure key
+# app.config['MONGO_URI'] = 'mongodb://localhost:27017/legal_assistant'  # Replace with your MongoDB URI
 app.config['MONGO_URI'] = 'mongodb+srv://itdatit12:NQJWnj7YwbQML8yE@cluster0.pwv2g0y.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
-# Email configuration
-app.config['SMTP_SERVER'] = 'smtp.gmail.com'
-app.config['SMTP_PORT'] = 587
-app.config['EMAIL_ADDRESS'] = 'legalmind2025@gmail.com'  # Replace with your email
-app.config['EMAIL_PASSWORD'] = 'hihj vpcb ayjk gaex'  # Replace with your app password
-
 # Initialize MongoDB client
 mongo = MongoClient(app.config['MONGO_URI'])
 db = mongo.get_database('legal_assistant')
 
 # Password hashing function using hashlib
 def hash_password(password: str) -> str:
-    salt = os.urandom(32)
-    hashed = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
-    password_hash = (salt + hashed).hex()
-    logging.info(f"Generated password hash: {password_hash}")
+    salt = os.urandom(32)  # Generate a random salt
+    hashed = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)  # 100,000 iterations
+    password_hash = (salt + hashed).hex()  # Store salt + hash as hex string
+    logging.info(f"Generated password hash: {password_hash}")  # Log the hash
     return password_hash
 
 # Password verification function
@@ -52,34 +43,12 @@ def verify_password(stored_password: str, provided_password: str) -> bool:
         return False
     try:
         stored_bytes = bytes.fromhex(stored_password)
-        salt = stored_bytes[:32]
-        stored_hash = stored_bytes[32:]
+        salt = stored_bytes[:32]  # Extract salt (first 32 bytes)
+        stored_hash = stored_bytes[32:]  # Extract hash
         provided_hash = hashlib.pbkdf2_hmac('sha256', provided_password.encode('utf-8'), salt, 100000)
         return stored_hash == provided_hash
     except ValueError as e:
         logging.error(f"Error in verify_password: {e}, stored_password: {stored_password}")
-        return False
-
-# Generate OTP
-def generate_otp(length=6):
-    return ''.join(random.choices(string.digits, k=length))
-
-# Send email with OTP or password
-def send_email(to_email, subject, body):
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = app.config['EMAIL_ADDRESS']
-    msg['To'] = to_email
-
-    try:
-        with smtplib.SMTP(app.config['SMTP_SERVER'], app.config['SMTP_PORT']) as server:
-            server.starttls()
-            server.login(app.config['EMAIL_ADDRESS'], app.config['EMAIL_PASSWORD'])
-            server.send_message(msg)
-        logging.info(f"Email sent to {to_email}")
-        return True
-    except Exception as e:
-        logging.error(f"Error sending email: {e}")
         return False
 
 # Khởi tạo model embedding
@@ -178,7 +147,7 @@ def preprocess_related_questions(related_questions_input: str | List[Dict[str, s
             seen.add(question_text)
             unique_questions.append({"question": question_text})
 
-    legal_keywords = r"(Luật钁|Bộ luật|Nghị định|Thông tư|Quy định|án lệ|Việt Nam|tòa án|pháp luật|điều luật|Bảo hiểm xã hội)"
+    legal_keywords = r"(Luật|Bộ luật|Nghị định|Thông tư|Quy định|án lệ|Việt Nam|tòa án|pháp luật|điều luật|Bảo hiểm xã hội)"
     filtered_questions = [
         q for q in unique_questions
         if re.search(legal_keywords, q["question"], re.IGNORECASE)
@@ -213,161 +182,43 @@ def register():
     username = data.get('username', '').strip()
     email = data.get('email', '').strip()
     password = data.get('password', '').strip()
-    phone = data.get('phone', '').strip()
 
-    if not username or not email or not password or not phone:
+    if not username or not email or not password:
         return jsonify({'error': 'Thiếu thông tin bắt buộc'}), 400
 
-    # Validate phone number format (basic example for Vietnamese phone numbers)
-    if not re.match(r'^\+84\d{9}$|^0\d{9}$', phone):
-        return jsonify({'error': 'Số điện thoại không hợp lệ'}), 400
+    if db.users.find_one({'$or': [{'username': username}, {'email': email}]}):
+        return jsonify({'error': 'Tên người dùng hoặc email đã tồn tại'}), 400
 
-    if db.users.find_one({'$or': [{'email': email}, {'phone': phone}]}):
-        return jsonify({'error': 'Email hoặc số điện thoại đã tồn tại'}), 400
-
-    otp = generate_otp()
     password_hash = hash_password(password)
     user = {
         'username': username,
         'email': email,
-        'phone': phone,
         'password_hash': password_hash,
-        'otp': otp,
-        'is_active': False,
         'created_at': datetime.utcnow()
     }
     result = db.users.insert_one(user)
+    return jsonify({'message': 'Đăng ký thành công'}), 201
 
-    # Send OTP email
-    if send_email(
-        email,
-        'Mã OTP xác thực tài khoản',
-        f'Mã OTP của bạn là: {otp}. Vui lòng sử dụng mã này để xác thực tài khoản.'
-    ):
-        return jsonify({
-            'message': 'Đăng ký thành công, vui lòng kiểm tra email để lấy mã OTP',
-            'user_id': str(result.inserted_id)
-        }), 201
-    else:
-        db.users.delete_one({'_id': result.inserted_id})
-        return jsonify({'error': 'Lỗi khi gửi OTP, vui lòng thử lại'}), 500
+# @app.route('/')
+# def login_pages():
+#     return render_template('home.html')
 
-# Xác thực OTP
-# Xác thực OTP
-@app.route('/verify_otp', methods=['GET', 'POST'])
-def verify_otp():
-    if request.method == 'GET':
-        user_id = request.args.get('user_id')
-        if not user_id:
-            return jsonify({'error': 'Thiếu user_id'}), 400
-        try:
-            user = db.users.find_one({'_id': ObjectId(user_id)})
-            if not user:
-                return jsonify({'error': 'Người dùng không tồn tại'}), 404
-            return render_template('verify_otp.html', user_id=user_id)
-        except Exception as e:
-            logging.error(f"Invalid user_id: {e}")
-            return jsonify({'error': 'user_id không hợp lệ'}), 400
 
-    elif request.method == 'POST':
-        data = request.get_json(silent=True) or {}
-        user_id = data.get('user_id', '').strip()
-        otp = data.get('otp', '').strip()
+@app.route('/')
+def page_index():
+    return render_template('index.html')
 
-        if not user_id or not otp:
-            return jsonify({'error': 'Thiếu user_id hoặc OTP'}), 400
+@app.route('/home')
+def page_home():
+    return render_template('home.html')
 
-        try:
-            user = db.users.find_one({'_id': ObjectId(user_id)})
-            if not user:
-                return jsonify({'error': 'Người dùng không tồn tại'}), 404
+@app.route('/login')
+def login_page():
+    return render_template('login.html')
 
-            if user.get('otp') != otp:
-                return jsonify({'error': 'Mã OTP không đúng'}), 400
-
-            db.users.update_one(
-                {'_id': ObjectId(user_id)},
-                {'$set': {'is_active': True, 'otp': None}}
-            )
-            return jsonify({'message': 'Xác thực tài khoản thành công'}), 200
-        except Exception as e:
-            logging.error(f"Error verifying OTP: {e}")
-            return jsonify({'error': 'Lỗi hệ thống, vui lòng thử lại'}), 500
-# Quên mật khẩu
-@app.route('/forgot_password', methods=['POST'])
-def forgot_password():
-    data = request.get_json(silent=True) or {}
-    email = data.get('email', '').strip()
-    last_three_digits = data.get('last_three_digits', '').strip()
-
-    if not email or not last_three_digits:
-        return jsonify({'error': 'Thiếu email hoặc 3 số cuối của số điện thoại'}), 400
-
-    user = db.users.find_one({'email': email})
-    if not user:
-        return jsonify({'error': 'Email không tồn tại'}), 404
-
-    phone = user.get('phone', '')
-    if not phone[-3:] == last_three_digits:
-        return jsonify({'error': '3 số cuối của số điện thoại không khớp'}), 400
-
-    new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
-    new_password_hash = hash_password(new_password)
-
-    db.users.update_one(
-        {'_id': user['_id']},
-        {'$set': {'password_hash': new_password_hash}}
-    )
-
-    if send_email(
-        email,
-        'Mật khẩu mới',
-        f'Mật khẩu mới của bạn là: {new_password}. Vui lòng đổi mật khẩu sau khi đăng nhập.'
-    ):
-        return jsonify({'message': 'Mật khẩu mới đã được gửi qua email'}), 200
-    else:
-        return jsonify({'error': 'Lỗi khi gửi mật khẩu mới'}), 500
-
-# Đổi mật khẩu
-@app.route('/change_password', methods=['POST'])
-def change_password():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Vui lòng đăng nhập để đổi mật khẩu'}), 401
-
-    data = request.get_json(silent=True) or {}
-    current_password = data.get('current_password', '').strip()
-    new_password = data.get('new_password', '').strip()
-
-    if not current_password or not new_password:
-        return jsonify({'error': 'Thiếu mật khẩu hiện tại hoặc mật khẩu mới'}), 400
-
-    # Validate new password (minimum 8 characters, at least one letter and one number)
-    if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$', new_password):
-        return jsonify({'error': 'Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ cái và số'}), 400
-
-    user_id = session['user_id']
-    user = db.users.find_one({'_id': ObjectId(user_id)})
-    if not user:
-        return jsonify({'error': 'Người dùng không tồn tại'}), 404
-
-    if not verify_password(user['password_hash'], current_password):
-        return jsonify({'error': 'Mật khẩu hiện tại không đúng'}), 401
-
-    new_password_hash = hash_password(new_password)
-    db.users.update_one(
-        {'_id': ObjectId(user_id)},
-        {'$set': {'password_hash': new_password_hash}}
-    )
-
-    # Send confirmation email
-    if send_email(
-        user['email'],
-        'Xác nhận đổi mật khẩu',
-        f'Mật khẩu của bạn đã được thay đổi thành công vào lúc {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}.'
-    ):
-        return jsonify({'message': 'Đổi mật khẩu thành công, email xác nhận đã được gửi'}), 200
-    else:
-        return jsonify({'error': 'Đổi mật khẩu thành công nhưng lỗi khi gửi email xác nhận'}), 200
+@app.route('/register')
+def register_page():
+    return render_template('register.html')
 
 # Đăng nhập
 @app.route('/logins', methods=['POST'])
@@ -380,9 +231,6 @@ def login():
     if not user:
         logging.error(f"No user found for email: {email}")
         return jsonify({'error': 'Email hoặc mật khẩu không đúng'}), 401
-
-    if not user.get('is_active', False):
-        return jsonify({'error': 'Tài khoản chưa được kích hoạt. Vui lòng xác thực OTP.'}), 401
 
     if not verify_password(user['password_hash'], password):
         return jsonify({'error': 'Email hoặc mật khẩu không đúng'}), 401
@@ -653,7 +501,7 @@ def draft_judgment():
         'chat_history': chat_history_str
     })
 
-# Xóa hội thoại SAFETY: 3
+# Xóa hội thoại
 @app.route('/conversation/<conversation_id>', methods=['DELETE'])
 def delete_conversation(conversation_id):
     if 'user_id' not in session:
@@ -664,22 +512,6 @@ def delete_conversation(conversation_id):
         return jsonify({'error': 'Hội thoại không tồn tại'}), 404
     db.messages.delete_many({'conversation_id': conversation_id})
     return jsonify({'message': 'Xóa hội thoại thành công'}), 200
-
-@app.route('/')
-def page_index():
-    return render_template('index.html')
-
-@app.route('/home')
-def page_home():
-    return render_template('home.html')
-
-@app.route('/login')
-def login_page():
-    return render_template('login.html')
-
-@app.route('/register')
-def register_page():
-    return render_template('register.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

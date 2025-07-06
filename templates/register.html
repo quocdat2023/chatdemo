@@ -79,7 +79,7 @@
         }
     </style>
 </head>
-<body>
+<body onload="checkSession()">
     <!-- Add this inside the <body> tag -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="updateToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -93,16 +93,26 @@
     </div>
 </div>
     <div class="login-container">
+        <div id="register-message"></div>
         <h2>Đăng Ký Tài Khoản</h2>
-        <form id="registerForm" class="mb-3">
-            <div class="mb-3">
-                <label for="email" class="form-label">Nhập email</label>
-                <input type="email" class="form-control bg-light" id="registerEmail" placeholder="Nhập email của bạn">
+        <form onsubmit="event.preventDefault(); register();">
+             <div class="form-group">
+                <label for="username">Tên người dùng</label>
+                <input type="text" class="form-control bg-light" id="username" required>
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Nhập mật khẩu</label>
-                <input type="password" class="form-control bg-light text-primary" id="registerPassword" placeholder="Nhập mật khẩu của bạn">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control bg-light" id="email" required>
             </div>
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" class="form-control bg-light" id="password" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Số điện thoại</label>
+                <input type="phone" class="form-control bg-light" id="phone" placeholder="+84" required>
+            </div>
+
             <button type="submit" class="btn btn-login" id="registerBtn">Đăng ký</button>
         </form>
         <p class="text-center text-muted mt-3">Bạn đã có tài khoản? <a href="/login" style="color: #6366F1;">Đăng nhập ngay</a></p>
@@ -110,714 +120,194 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Application state
-let currentUser = null;
-let conversations = [];
-let currentConversationId = null;
-let messages = [];
-let isLoading = false;
-
-// DOM elements
-let loginForm, registerForm, sidebar, mobileOverlay, menuBtn, closeSidebarBtn, newChatBtn, 
-    conversationsList, messagesContainer, messages_div, welcomeSection, suggestedQuestionsElement, 
-    inputForm, messageInput, sendBtn, themeToggle, languageSelect;
-
-// Translation dictionary
-const translations = {
-    en: {
-        chatHistory: 'Chat History',
-        newConversation: 'New Conversation',
-        noConversations: 'No conversations yet',
-        startNewChat: 'Start a new chat to get started',
-        message: 'message',
-        messages: 'messages',
-        relatedQuestions: 'Related Questions',
-        legalReferences: 'Legal References',
-        pageNumber: 'Page',
-        matchScore: 'Match Score',
-        analyzing: 'Analyzing...',
-        errorMessage: 'An error occurred. Please try again.',
-        login: 'Login',
-        register: 'Register',
-        featureUpdating: 'This feature is currently under update. Please try again later or use the standard email login.'
-    },
-    vi: {
-        chatHistory: 'Lịch Sử Trò Chuyện',
-        newConversation: 'Hội Thoại Mới',
-        noConversations: 'Chưa có hội thoại nào',
-        startNewChat: 'Bắt đầu hội thoại mới để tiếp tục',
-        message: 'tin nhắn',
-        messages: 'tin nhắn',
-        relatedQuestions: 'Câu Hỏi Liên Quan',
-        legalReferences: 'Tài Liệu Pháp Lý',
-        pageNumber: 'Trang',
-        matchScore: 'Độ Khớp',
-        analyzing: 'Đang phân tích...',
-        errorMessage: 'Có lỗi xảy ra. Vui lòng thử lại.',
-        login: 'Đăng Nhập',
-        register: 'Đăng Ký',
-        featureUpdating: 'Chức năng này đang được cập nhật. Vui lòng thử lại sau hoặc sử dụng đăng nhập bằng email thông thường.'
-    }
-};
-
-// Suggested questions
-const suggestedQuestions = {
-    en: [
-        'What are the essential elements of a valid contract?',
-        'How does civil law differ from criminal law?',
-        'What protections does intellectual property law provide?',
-        'What are the ways a contract can be terminated?',
-        'What are fiduciary duties in corporate law?',
-        'Explain force majeure clauses'
-    ],
-    vi: [
-        'Các yếu tố chính của một hợp đồng hợp lệ là gì?',
-        'Luật dân sự khác với luật hình sự như thế nào?',
-        'Luật sở hữu trí tuệ cung cấp những bảo vệ gì?',
-        'Hợp đồng có thể được chấm dứt bằng những cách nào?',
-        'Nhiệm vụ ủy thác trong luật doanh nghiệp là gì?',
-        'Giải thích các điều khoản bất khả kháng'
-    ]
-};
-
-// Function to show update notification
-function showUpdateNotification() {
-    alert(translate('featureUpdating'));
+     <script>
+        // Function to display messages
+function showMessage(elementId, message, type = 'success') {
+    const messageDiv = document.getElementById(elementId);
+    messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    setTimeout(() => messageDiv.innerHTML = '', 5000);
 }
 
-// Authentication functions
-async function login(email, password, remember) {
-    try {
-        const response = await fetch('/logins', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, remember })
-        });
-        const data = await response.json();
-        if (response.ok) {
-            currentUser = data.username;
-            if (remember) {
-                localStorage.setItem('user_session', JSON.stringify({
-                    user_id: data.user_id,
-                    username: data.username
-                }));
-            }
-            window.location.href = '/';
-        } else {
-            alert(data.error);
-        }
-    } catch (error) {
-        alert('Lỗi khi đăng nhập');
-    }
-}
-
-async function register(username, email, password) {
-    try {
-        const response = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password })
-        });
-        const data = await response.json();
-        if (response.ok) {
-            alert('Đăng ký thành công! Vui lòng đăng nhập.');
-            window.location.href = '/login';
-        } else {
-            alert(data.error);
-        }
-    } catch (error) {
-        alert('Lỗi khi đăng ký');
-    }
-}
-
-async function logout() {
-    try {
-        const response = await fetch('/api/logout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        if (response.ok) {
-            currentUser = null;
-            conversations = [];
-            currentConversationId = null;
-            messages = [];
-            localStorage.removeItem('user_session');
-            renderConversations();
-            renderMessages();
-            renderUserInfo();
-            window.location.href = '/login';
-        } else {
-            alert('Lỗi khi đăng xuất');
-        }
-    } catch (error) {
-        alert('Lỗi khi đăng xuất');
-    }
-}
-
-async function checkSession() {
-    try {
-        const response = await fetch('/api/check_session');
-        const data = await response.json();
+// Check session on page load
+function checkSession() {
+    fetch('/check_session', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const authNav = document.getElementById('auth-nav');
         if (data.logged_in) {
-            currentUser = data.username;
-            if (window.location.pathname === '/') {
-                loadConversations();
-                renderUserInfo();
-            }
-        } else if (window.location.pathname === '/') {
-            window.location.href = '/login';
-        }
-    } catch (error) {
-        console.error('Error checking session:', error);
-        if (window.location.pathname === '/') {
-            window.location.href = '/login';
-        }
-    }
-}
-
-// Conversation management
-async function loadConversations() {
-    if (!currentUser) return;
-    try {
-        const response = await fetch('/api/conversations');
-        const data = await response.json();
-        if (response.ok) {
-            conversations = data;
-            renderConversations();
+            authNav.innerHTML = `
+                <li class="nav-item">
+                    <span class="nav-link">Xin chào, ${data.username}</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/change_password">Đổi mật khẩu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="logout()">Đăng xuất</a>
+                </li>
+            `;
         } else {
-            alert(data.error);
-        }
-    } catch (error) {
-        console.error('Error loading conversations:', error);
-    }
-}
-
-async function loadConversation(conversationId) {
-    if (!currentUser) {
-        window.location.href = '/login';
-        return;
-    }
-    try {
-        const response = await fetch(`/api/conversation/${conversationId}`);
-        const data = await response.json();
-        if (response.ok) {
-            currentConversationId = conversationId;
-            messages = data.messages;
-            renderMessages();
-        } else {
-            alert(data.error);
-        }
-    } catch (error) {
-        console.error('Error loading conversation:', error);
-    }
-}
-
-async function deleteConversation(conversationId) {
-    if (!currentUser) {
-        window.location.href = '/login';
-        return;
-    }
-    try {
-        const response = await fetch(`/api/conversation/${conversationId}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await response.json();
-        if (response.ok) {
-            conversations = conversations.filter(conv => conv.id !== conversationId);
-            if (currentConversationId === conversationId) {
-                currentConversationId = null;
-                messages = [];
-                renderMessages();
-            }
-            renderConversations();
-        } else {
-            alert(data.error);
-        }
-    } catch (error) {
-        console.error('Error deleting conversation:', error);
-    }
-}
-
-function createNewConversation() {
-    if (!currentUser) {
-        window.location.href = '/login';
-        return;
-    }
-    currentConversationId = null;
-    messages = [];
-    renderMessages();
-    closeSidebar();
-}
-
-function selectConversation(conversationId) {
-    if (!currentUser) {
-        window.location.href = '/login';
-        return;
-    }
-    loadConversation(conversationId);
-}
-
-function updateConversationTitle(conversationId, newTitle, messageCount) {
-    const conversation = conversations.find(conv => conv.id === conversationId);
-    if (conversation) {
-        if (conversation.message_count === 0) {
-            conversation.title = newTitle.slice(0, 50) + (newTitle.length > 50 ? '...' : '');
-        }
-        conversation.message_count = messageCount;
-        conversation.timestamp = new Date().toISOString();
-        renderConversations();
-    }
-}
-
-function renderConversations() {
-    if (!conversationsList) return;
-    const authButtons = document.getElementById('authButtons');
-    authButtons.style.display = currentUser ? 'none' : 'block';
-
-    if (!currentUser || conversations.length === 0) {
-        conversationsList.innerHTML = `
-            <div class="empty-conversations">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square h-12 w-12 text-gray-300 mx-auto mb-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                <p data-translate="noConversations">${translate('noConversations')}</p>
-                <small data-translate="startNewChat">${translate('startNewChat')}</small>
-            </div>
-        `;
-        return;
-    }
-
-    conversationsList.innerHTML = conversations.map(conversation => `
-        <div class="conversation-item ${conversation.id === currentConversationId ? 'active' : ''}" 
-             data-conversation-id="${conversation.id}">
-            <div class="conversation-title">${conversation.title}</div>
-            <div class="conversation-meta">
-                <span>${conversation.message_count} ${conversation.message_count === 1 ? translate('message') : translate('messages')}</span>
-                <span>•</span>
-                <span>${formatTimestamp(conversation.timestamp)}</span>
-            </div>
-            <button class="delete-conversation" data-conversation-id="${conversation.id}">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-    `).join('');
-
-    conversationsList.querySelectorAll('.conversation-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            if (!e.target.closest('.delete-conversation')) {
-                selectConversation(item.dataset.conversationId);
-            }
-        });
-    });
-
-    conversationsList.querySelectorAll('.delete-conversation').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteConversation(btn.dataset.conversationId);
-        });
-    });
-}
-
-// Message management
-function addMessage(type, content, sources = null, relatedQuestions = null, isTyping = false) {
-    if (!messages_div) return;
-    const message = {
-        id: Date.now().toString() + (isTyping ? '-typing' : ''),
-        type,
-        content,
-        timestamp: new Date().toISOString(),
-        sources,
-        relatedQuestions,
-        isTyping
-    };
-    
-    if (isTyping) {
-        messages = messages.filter(msg => !msg.isTyping);
-    }
-    
-    messages.push(message);
-    renderMessages();
-    
-    return message.id;
-}
-
-function removeMessage(messageId) {
-    if (!messages_div) return;
-    messages = messages.filter(msg => msg.id !== messageId);
-    renderMessages();
-}
-
-function renderMessages() {
-    if (!messages_div) return;
-    const hasMessages = messages.length > 0;
-    const hasConversation = currentConnectionId !== null;
-    
-    welcomeSection.style.display = hasMessages ? 'none' : 'block';
-    
-    if (!hasMessages && !hasConversation) {
-        suggestedQuestionsElement.style.display = 'block';
-        const currentLang = getCurrentLanguage();
-        suggestedQuestionsElement.innerHTML = `
-            <h3>${translate('relatedQuestions')}</h3>
-            <div class="questions-grid">
-                ${suggestedQuestions[currentLang].map(question => `
-                    <button class="question-btn" data-question="${question}">
-                        <i class="fa-solid fa-circle-question"></i>
-                        <span>${question}</span>
-                    </button>
-                `).join('')}
-            </div>
-        `;
-        suggestedQuestionsElement.querySelectorAll('.question-btn').forEach(btn => {
-            btn.addEventListener('click', () => sendMessage(btn.dataset.question));
-        });
-    } else {
-        suggestedQuestionsElement.style.display = 'none';
-    }
-
-    if (!hasMessages) {
-        messages_div.innerHTML = '';
-        return;
-    }
-
-    messages_div.innerHTML = messages.map(message => {
-        if (message.isTyping) {
-            return `
-                <div class="message assistant fade-in">
-                    <div class="message-content">
-                        <div class="message-wrapper">
-                            <div class="message-avatar">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div class="message-bubble">
-                                <div class="typing-indicator">
-                                    <div class="typing-dots">
-                                        <div class="typing-dot"></div>
-                                        <div class="typing-dot"></div>
-                                        <div class="typing-dot"></div>
-                                    </div>
-                                    <span>${translate('analyzing')}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            authNav.innerHTML = `
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Đăng nhập</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/register">Đăng ký</a>
+                </li>
             `;
         }
-
-        const sourcesHtml = message.sources ? `
-            <div class="message-sources">
-                <div class="sources-title">${translate('legalReferences')}</div>
-                ${message.sources.map(source => `
-                    <div class="source-item">
-                        <div class="source-header">
-                            <div class="source-info">
-                                <i class="fas fa-file-text"></i>
-                                <div class="source-details">
-                                    <div class="source-name">${source.file}</div>
-                                    <div class="source-excerpt">"${source.text.slice(0, 150) + '...'}"</div>
-                                </div>
-                            </div>
-                            <div class="source-meta">
-                                <div class="source-score">${source.distance.toFixed(4)} ${translate('matchScore')}</div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        ` : '';
-
-        const relatedQuestionsHtml = message.relatedQuestions ? `
-            <div class="related-questions">
-                <div class="related-questions-title">${translate('relatedQuestions')}</div>
-                ${message.relatedQuestions.map(q => `
-                    <button class="related-question-btn" data-question="${q.question}">
-                        <i class="fas fa-circle-question"></i>
-                        <span>${q.question}</span>
-                    </button>
-                `).join('')}
-            </div>
-        ` : '';
-
-        return `
-            <div class="message ${message.type} fade-in">
-                <div class="message-content">
-                    <div class="message-wrapper">
-                        <div class="message-avatar">
-                            <i class="fas ${message.type === 'user' ? 'fa-user' : 'fa-robot'}"></i>
-                        </div>
-                        <div class="message-bubble">
-                            <div class="message-text">${message.content}</div>
-                            ${sourcesHtml}
-                            ${relatedQuestionsHtml}
-                            <div class="message-timestamp">${formatTimestamp(message.timestamp)}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    messages_div.querySelectorAll('.related-question-btn').forEach(btn => {
-        btn.addEventListener('click', () => sendMessage(btn.dataset.question));
-    });
+    })
+    .catch(error => console.error('Error checking session:', error));
 }
 
-async function sendMessage(content) {
-    if (!content.trim() || isLoading || !currentUser) {
-        if (!currentUser) window.location.href = '/login';
-        return;
-    }
+// Register
+function register() {
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const phone = document.getElementById('phone').value;
 
-    const messageData = { question: content };
-    if (currentConversationId) {
-        messageData.conversation_id = currentConversationId;
-    }
-
-    addMessage('user', content);
-    const messageCount = messages.filter(msg => !msg.isTyping).length;
-    updateConversationTitle(currentConversationId, content, messageCount);
-
-    isLoading = true;
-    updateSendButton();
-
-    const typingId = addMessage('assistant', '', null, null, true);
-
-    try {
-        const response = await fetch('/api/query', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(messageData)
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-            removeMessage(typingId);
-            currentConversationId = data.conversation_id;
-            addMessage('assistant', data.final_response, data.top_banan_documents, data.related_questions);
-            loadConversations();
+    fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password, phone })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showMessage('register-message', data.error, 'danger');
         } else {
-            throw new Error(data.error);
+            showMessage('register-message', data.message, 'success');
+            setTimeout(() => {
+                window.location.href = `/verify_otp?user_id=${data.user_id}`;
+            }, 2000);
         }
-    } catch (error) {
-        removeMessage(typingId);
-        addMessage('assistant', translate('errorMessage'));
-    } finally {
-        isLoading = false;
-        updateSendButton();
-    }
-}
-
-// Utility functions
-function translate(key) {
-    const lang = getCurrentLanguage();
-    return translations[lang][key] || key;
-}
-
-function getCurrentLanguage() {
-    return languageSelect ? languageSelect.value : 'vi';
-}
-
-function setLanguage(lang) {
-    if (languageSelect) languageSelect.value = lang;
-    document.querySelectorAll('[data-translate]').forEach(element => {
-        const key = element.dataset.translate;
-        element.textContent = translate(key);
-    });
-    if (window.location.pathname === '/') {
-        renderConversations();
-        renderMessages();
-    }
-}
-
-function formatTimestamp(timestamp) {
-    const date = new Date(timestamp);
-    return date.toLocaleString(getCurrentLanguage() === 'vi' ? 'vi-VN' : 'en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+    })
+    .catch(error => {
+        showMessage('register-message', 'Lỗi hệ thống, vui lòng thử lại', 'danger');
+        console.error('Error:', error);
     });
 }
 
-function updateSendButton() {
-    if (!sendBtn) return;
-    sendBtn.disabled = isLoading || !messageInput.value.trim();
-    sendBtn.innerHTML = isLoading ? '<i class="fas fa-spinner fa-spin"></i>' : '<i class="fas fa-paper-plane"></i>';
+// Verify OTP
+function verifyOtp() {
+    const user_id = new URLSearchParams(window.location.search).get('user_id');
+    const otp = document.getElementById('otp').value;
+
+    fetch('/verify_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id, otp })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showMessage('otp-message', data.error, 'danger');
+        } else {
+            showMessage('otp-message', data.message, 'success');
+            setTimeout(() => window.location.href = '/login', 2000);
+        }
+    })
+    .catch(error => {
+        showMessage('otp-message', 'Lỗi hệ thống, vui lòng thử lại', 'danger');
+        console.error('Error:', error);
+    });
 }
 
-function initializeTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    if (themeToggle) themeToggle.checked = savedTheme === 'dark';
+// Login
+function login() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    fetch('/logins', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showMessage('login-message', data.error, 'danger');
+        } else {
+            showMessage('login-message', data.message, 'success');
+            setTimeout(() => window.location.href = '/home', 2000);
+        }
+    })
+    .catch(error => {
+        showMessage('login-message', 'Lỗi hệ thống, vui lòng thử lại', 'danger');
+        console.error('Error:', error);
+    });
 }
 
-function toggleSidebar() {
-    if (!sidebar) return;
-    sidebar.classList.toggle('open');
-    mobileOverlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+// Forgot Password
+function forgotPassword() {
+    const email = document.getElementById('email').value;
+    const last_three_digits = document.getElementById('last_three_digits').value;
+
+    fetch('/forgot_password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, last_three_digits })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showMessage('forgot-password-message', data.error, 'danger');
+        } else {
+            showMessage('forgot-password-message', data.message, 'success');
+            setTimeout(() => window.location.href = '/login', 2000);
+        }
+    })
+    .catch(error => {
+        showMessage('forgot-password-message', 'Lỗi hệ thống, vui lòng thử lại', 'danger');
+        console.error('Error:', error);
+    });
 }
 
-function closeSidebar() {
-    if (!sidebar) return;
-    sidebar.classList.remove('open');
-    mobileOverlay.style.display = 'none';
+// Change Password
+function changePassword() {
+    const current_password = document.getElementById('current_password').value;
+    const new_password = document.getElementById('new_password').value;
+
+    fetch('/change_password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ current_password, new_password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showMessage('change-password-message', data.error, 'danger');
+        } else {
+            showMessage('change-password-message', data.message, 'success');
+            setTimeout(() => window.location.href = '/home', 2000);
+        }
+    })
+    .catch(error => {
+        showMessage('change-password-message', 'Lỗi hệ thống, vui lòng thử lại', 'danger');
+        console.error('Error:', error);
+    });
 }
 
-// Render user info
-function renderUserInfo() {
-    if (window.location.pathname !== '/') return;
-    const headerInfo = document.querySelector('.header-info');
-    headerInfo.innerHTML = '';
-    if (currentUser) {
-        headerInfo.innerHTML = `
-            <div class="user-info">
-                <span>Xin chào, ${currentUser}</span>
-                <button id="logoutBtn">Đăng Xuất</button>
-            </div>
-        `;
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-    } else {
-        headerInfo.innerHTML = `
-            <div class="user-info">
-                <button id="loginBtn">Đăng Nhập</button>
-                <button id="registerBtn">Đăng Ký</button>
-            </div>
-        `;
-        document.getElementById('loginBtn').addEventListener('click', () => window.location.href = '/login');
-        document.getElementById('registerBtn').addEventListener('click', () => window.location.href = '/register');
-    }
-
-    const sidebarAuthButtons = document.getElementById('authButtons');
-    sidebarAuthButtons.innerHTML = currentUser ? '' : `
-        <button id="sidebarLoginBtn">Đăng Nhập</button>
-        <button id="sidebarRegisterBtn">Đăng Ký</button>
-    `;
-    if (!currentUser) {
-        document.getElementById('sidebarLoginBtn').addEventListener('click', () => window.location.href = '/login');
-        document.getElementById('sidebarRegisterBtn').addEventListener('click', () => window.location.href = '/register');
-    }
+// Logout
+function logout() {
+    fetch('/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        showMessage('auth-message', data.message, 'success');
+        setTimeout(() => window.location.href = '/', 1000);
+    })
+    .catch(error => {
+        showMessage('auth-message', 'Lỗi hệ thống, vui lòng thử lại', 'danger');
+        console.error('Error:', error);
+    });
 }
-
-// Initialize DOM elements
-function initializeDOM() {
-    loginForm = document.getElementById('loginForm');
-    registerForm = document.getElementById('registerForm');
-    sidebar = document.getElementById('sidebar');
-    mobileOverlay = document.getElementById('mobileOverlay');
-    menuBtn = document.getElementById('menuBtn');
-    closeSidebarBtn = document.getElementById('closeSidebarBtn');
-    newChatBtn = document.getElementById('newChatBtn');
-    conversationsList = document.getElementById('conversationsList');
-    messagesContainer = document.getElementById('messagesContainer');
-    messages_div = document.getElementById('messages');
-    welcomeSection = document.getElementById('welcomeSection');
-    suggestedQuestionsElement = document.getElementById('suggestedQuestions');
-    inputForm = document.getElementById('inputForm');
-    messageInput = document.getElementById('messageInput');
-    sendBtn = document.getElementById('sendBtn');
-    themeToggle = document.getElementById('themeToggle');
-    languageSelect = document.getElementById('languageSelect');
-}
-
-// Event listeners
-function initializeEventListeners() {
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const remember = document.getElementById('remember').checked;
-            login(email, password, remember);
-        });
-    }
-
-    if (registerForm) {
-        registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('registerUsername').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            register(username, email, password);
-        });
-    }
-
-    if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
-    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
-    if (mobileOverlay) mobileOverlay.addEventListener('click', closeSidebar);
-    if (newChatBtn) newChatBtn.addEventListener('click', createNewConversation);
-
-    if (messageInput) {
-        messageInput.addEventListener('input', updateSendButton);
-    }
-
-    if (inputForm) {
-        inputForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const content = messageInput.value.trim();
-            if (content) {
-                sendMessage(content);
-                messageInput.value = '';
-                updateSendButton();
-            }
-        });
-    }
-
-    if (themeToggle) {
-        themeToggle.addEventListener('change', () => {
-            const newTheme = themeToggle.checked ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        });
-    }
-
-    if (languageSelect) {
-        languageSelect.addEventListener('change', () => {
-            setLanguage(languageSelect.value);
-        });
-    }
-
-    // Add event listener for Google Login button
-    const googleLoginBtn = document.querySelector('.btn-google');
-    if (googleLoginBtn) {
-        googleLoginBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showUpdateNotification();
-        });
-    }
-
-    // Add event listener for Forgot Password link
-    const forgotPasswordLink = document.querySelector('.float-end.text-muted');
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showUpdateNotification();
-        });
-    }
-
-    // Add event listener for Remember Password checkbox
-    const rememberCheckbox = document.getElementById('remember');
-    if (rememberCheckbox) {
-        rememberCheckbox.addEventListener('change', () => {
-            if (rememberCheckbox.checked) {
-                showUpdateNotification();
-                rememberCheckbox.checked = false; // Uncheck until feature is available
-            }
-        });
-    }
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    initializeDOM();
-    setLanguage('vi');
-    initializeTheme();
-    initializeEventListeners();
-    checkSession();
-});
     </script>
 </body>
 </html>
