@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session, render_template
+from flask import Flask, request, jsonify, session, render_template,redirect, url_for
 from pymongo import MongoClient
 from datetime import datetime
 from gemini_handler import GeminiHandler, GenerationConfig, Strategy, KeyRotationStrategy
@@ -293,40 +293,69 @@ def verify_otp():
         except Exception as e:
             logging.error(f"Error verifying OTP: {e}")
             return jsonify({'error': 'Lỗi hệ thống, vui lòng thử lại'}), 500
-# Quên mật khẩu
-@app.route('/forgot_password', methods=['POST'])
-def forgot_password():
+# Get masked phone number
+@app.route('/get_masked_phone', methods=['POST'])
+def get_masked_phone():
     data = request.get_json(silent=True) or {}
     email = data.get('email', '').strip()
-    last_three_digits = data.get('last_three_digits', '').strip()
 
-    if not email or not last_three_digits:
-        return jsonify({'error': 'Thiếu email hoặc 3 số cuối của số điện thoại'}), 400
+    if not email:
+        return jsonify({'error': 'Thiếu email'}), 400
 
     user = db.users.find_one({'email': email})
     if not user:
         return jsonify({'error': 'Email không tồn tại'}), 404
 
     phone = user.get('phone', '')
-    if not phone[-3:] == last_three_digits:
-        return jsonify({'error': '3 số cuối của số điện thoại không khớp'}), 400
+    # Mask the last 4 digits
+    masked_phone = phone[:-4] + '****'
+    return jsonify({'masked_phone': masked_phone}), 200
 
-    new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
-    new_password_hash = hash_password(new_password)
+# Quên mật khẩu
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'GET':
+        return render_template('forgot_password.html')
 
-    db.users.update_one(
-        {'_id': user['_id']},
-        {'$set': {'password_hash': new_password_hash}}
-    )
+    elif request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        email = data.get('email', '').strip()
+        last_four_digits = data.get('last_four_digits', '').strip()
 
-    if send_email(
-        email,
-        'Mật khẩu mới',
-        f'Mật khẩu mới của bạn là: {new_password}. Vui lòng đổi mật khẩu sau khi đăng nhập.'
-    ):
-        return jsonify({'message': 'Mật khẩu mới đã được gửi qua email'}), 200
-    else:
-        return jsonify({'error': 'Lỗi khi gửi mật khẩu mới'}), 500
+        if not email or not last_four_digits:
+            return jsonify({'error': 'Thiếu email hoặc 4 số cuối của số điện thoại'}), 400
+
+        user = db.users.find_one({'email': email})
+        if not user:
+            return jsonify({'error': 'Email không tồn tại'}), 404
+
+        phone = user.get('phone', '')
+        if not phone[-4:] == last_four_digits:
+            return jsonify({'error': '4 số cuối của số điện thoại không khớp'}), 400
+
+        new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
+        new_password_hash = hash_password(new_password)
+
+        db.users.update_one(
+            {'_id': user['_id']},
+            {'$set': {'password_hash': new_password_hash}}
+        )
+
+        if send_email(
+            email,
+            'Mật khẩu mới',
+            f'Mật khẩu mới của bạn là: {new_password}. Vui lòng đổi mật khẩu sau khi đăng nhập.'
+        ):
+            return jsonify({'message': 'Mật khẩu mới đã được gửi qua email'}), 200
+        else:
+            return jsonify({'error': 'Lỗi khi gửi mật khẩu mới'}), 500
+
+
+@app.route('/change_password', methods=['GET'])
+def change_password_get():
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
+    return render_template('change_password.html')
 
 # Đổi mật khẩu
 @app.route('/change_password', methods=['POST'])

@@ -38,6 +38,19 @@
   --error-color: #f87171;
 }
 
+/* Dark theme styles */
+[data-theme='dark'] {
+  background: var(--bg-dark);
+  color: #f8f9fa;
+}
+
+[data-theme='dark'] .messages-container {
+  background: #0f172a;
+  /* Dark background for messages container */
+  color: #f8f9fa;
+  /* Light text color */
+}
+
 /* Reset and Base Styles */
 * {
   margin: 0;
@@ -128,10 +141,12 @@ body {
 
 .conversations-list {
   flex: 1;
-  max-height: 67vh; /* Giới hạn chiều cao, ví dụ 70% chiều cao viewport */
+  max-height: 67vh;
+  /* Giới hạn chiều cao, ví dụ 70% chiều cao viewport */
   overflow-y: auto;
   padding: 1rem;
-  scroll-behavior: smooth; /* Cuộn mượt mà */
+  scroll-behavior: smooth;
+  /* Cuộn mượt mà */
 }
 
 .empty-conversations {
@@ -171,10 +186,14 @@ body {
   color: var(--text-primary);
   margin-bottom: 0.25rem;
   white-space: nowrap;
-  max-width: 250px; /* Giới hạn chiều rộng của div */
-  white-space: nowrap; /* Ngăn nội dung xuống dòng */
-  overflow: hidden; /* Ẩn nội dung vượt quá */
-  text-overflow: ellipsis; /* Hiển thị dấu ... khi nội dung bị cắt */
+  max-width: 250px;
+  /* Giới hạn chiều rộng của div */
+  white-space: nowrap;
+  /* Ngăn nội dung xuống dòng */
+  overflow: hidden;
+  /* Ẩn nội dung vượt quá */
+  text-overflow: ellipsis;
+  /* Hiển thị dấu ... khi nội dung bị cắt */
 }
 
 .conversation-meta {
@@ -221,8 +240,20 @@ body {
 }
 
 .control-btn {
+  font-size: small;
   background: none;
   border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 35px;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-ease);
+}
+
+.control-btn-off {
+  background: none;
+  border: none;
   color: var(--text-secondary);
   cursor: pointer;
   padding: 0.5rem;
@@ -326,10 +357,12 @@ body {
 
 .messages-container {
   flex: 1;
-  max-height: 77vh; /* Giới hạn chiều cao, ví dụ 70% chiều cao viewport */
+  max-height: 77vh;
+  /* Giới hạn chiều cao, ví dụ 70% chiều cao viewport */
   overflow-y: auto;
   padding: 1rem;
-  scroll-behavior: smooth; /* Cuộn mượt mà */
+  scroll-behavior: smooth;
+  /* Cuộn mượt mà */
 }
 
 .messages-container::-webkit-scrollbar {
@@ -375,7 +408,7 @@ body {
   margin-bottom: 1rem;
 }
 
-.welcome-section > p {
+.welcome-section>p {
   color: var(--text-secondary);
   margin-bottom: 2rem;
   max-width: 32rem;
@@ -548,9 +581,13 @@ body {
 }
 
 @keyframes typing {
-  0%, 60%, 100% {
+
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
   }
+
   30% {
     transform: translateY(-10px);
   }
@@ -854,6 +891,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -869,6 +907,7 @@ body {
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -884,6 +923,7 @@ body {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -931,7 +971,8 @@ body {
   color: var(--text-primary);
   line-height: 1.4;
 }
-a{
+
+a {
   color: var(--accent-color);
   text-decoration: none;
   transition: color 0.2s ease;
@@ -939,17 +980,19 @@ a{
 
 /* dropdown */
 .header-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 .user-info {
-    margin-left: auto; /* Đẩy user-info sát bên phải */
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Khoảng cách giữa các phần tử trong user-info */
+  margin-left: auto;
+  /* Đẩy user-info sát bên phải */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Khoảng cách giữa các phần tử trong user-info */
 }
 
 @media (max-width: 640px) {
@@ -963,39 +1006,48 @@ a{
 
   /* Header Adjustments for user-info */
   .header-info {
-    flex-wrap: wrap; /* Allow wrapping to prevent overflow */
-    gap: 0.5rem; /* Slightly reduce gap for compact layout */
+    flex-wrap: wrap;
+    /* Allow wrapping to prevent overflow */
+    gap: 0.5rem;
+    /* Slightly reduce gap for compact layout */
   }
 
   .user-info {
-    margin-left: 0; /* Remove auto margin to prevent misalignment */
-    gap: 0.5rem; /* Reduce gap for mobile */
-    flex-wrap: nowrap; /* Keep user-info items in a single row */
+    margin-left: 0;
+    /* Remove auto margin to prevent misalignment */
+    gap: 0.5rem;
+    /* Reduce gap for mobile */
+    flex-wrap: nowrap;
+    /* Keep user-info items in a single row */
   }
 
   .bot-avatar {
-    width: 2rem; /* Slightly smaller avatar */
+    width: 2rem;
+    /* Slightly smaller avatar */
     height: 2rem;
     font-size: 1rem;
   }
 
   .header-text h1 {
-    font-size: 1rem; /* Smaller header text */
+    font-size: 1rem;
+    /* Smaller header text */
   }
 
   .header-text p {
-    font-size: 0.75rem; /* Smaller subtitle text */
+    font-size: 0.75rem;
+    /* Smaller subtitle text */
   }
 
   .menu-btn {
-    display: block; /* Ensure menu button is visible */
+    display: block;
+    /* Ensure menu button is visible */
   }
 
   .welcome-section {
     padding: 1rem;
   }
 
- .welcome-section h2 {
+  .welcome-section h2 {
     font-size: 1.25rem;
   }
 
@@ -1018,28 +1070,36 @@ a{
     animation: fadeIn 0.3s ease-in-out;
   }
 
-  .message-bubble{
+  .message-bubble {
     width: 85%;
   }
- .header-text {
-  display: none;
+
+  .header-text {
+    display: none;
   }
 
-.conversation-title{
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-  white-space: nowrap;
-  max-width: 325px; /* Giới hạn chiều rộng của div */
-  white-space: nowrap; /* Ngăn nội dung xuống dòng */
-  overflow: hidden; /* Ẩn nội dung vượt quá */
-  text-overflow: ellipsis; /* Hiển thị dấu ... khi nội dung bị cắt */
+  .conversation-title {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    max-width: 325px;
+    /* Giới hạn chiều rộng của div */
+    white-space: nowrap;
+    /* Ngăn nội dung xuống dòng */
+    overflow: hidden;
+    /* Ẩn nội dung vượt quá */
+    text-overflow: ellipsis;
+    /* Hiển thị dấu ... khi nội dung bị cắt */
 
-}
+  }
+
   .suggested-questions h3 {
-    font-size: 1rem; /* Smaller title for suggested questions */
+    font-size: 1rem;
+    /* Smaller title for suggested questions */
   }
+
   .input-wrapper {
     gap: 0.5rem;
   }
