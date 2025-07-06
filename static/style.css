@@ -5,7 +5,7 @@
   --bg-tertiary: #f3f4f6;
   --text-primary: #111827;
   --text-secondary: #6b7280;
-  --text-tertiary: #9ca3af;
+  --text-tertiary: #ffffff;
   --border-color: #e5e7eb;
   --accent-color: #3b82f6;
   --accent-hover: #2563eb;
@@ -29,7 +29,7 @@
   --bg-tertiary: #334155;
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
-  --text-tertiary: #94a3b8;
+  --text-tertiary: #ffffff;
   --border-color: #475569;
   --accent-color: #3b82f6;
   --accent-hover: #60a5fa;
@@ -38,19 +38,13 @@
   --error-color: #f87171;
 }
 
-/* Dark theme styles */
-[data-theme='dark'] {
-  background: var(--bg-dark);
-  color: #f8f9fa;
-}
+ .message.user .message-text {
+    color: var(--text-tertiary);
+  }
 
-[data-theme='dark'] .messages-container {
-  background: #0f172a;
-  /* Dark background for messages container */
-  color: #f8f9fa;
-  /* Light text color */
-}
-
+  .fa-file-text {
+    color: #3b82f6 !important;
+  }
 /* Reset and Base Styles */
 * {
   margin: 0;
@@ -82,6 +76,10 @@ body {
   flex-direction: column;
   transition: transform 0.3s ease;
   box-shadow: var(--shadow-sm);
+}
+
+.sidebar.open {
+  transform: translateX(0);
 }
 
 .sidebar-header {
@@ -142,11 +140,9 @@ body {
 .conversations-list {
   flex: 1;
   max-height: 67vh;
-  /* Giới hạn chiều cao, ví dụ 70% chiều cao viewport */
   overflow-y: auto;
   padding: 1rem;
   scroll-behavior: smooth;
-  /* Cuộn mượt mà */
 }
 
 .empty-conversations {
@@ -168,6 +164,7 @@ body {
   margin-bottom: 0.5rem;
   border: 1px solid transparent;
   transition: var(--transition-ease);
+  position: relative;
 }
 
 .conversation-item:hover {
@@ -187,13 +184,8 @@ body {
   margin-bottom: 0.25rem;
   white-space: nowrap;
   max-width: 250px;
-  /* Giới hạn chiều rộng của div */
-  white-space: nowrap;
-  /* Ngăn nội dung xuống dòng */
   overflow: hidden;
-  /* Ẩn nội dung vượt quá */
   text-overflow: ellipsis;
-  /* Hiển thị dấu ... khi nội dung bị cắt */
 }
 
 .conversation-meta {
@@ -261,7 +253,8 @@ body {
   transition: var(--transition-ease);
 }
 
-.control-btn:hover {
+.control-btn:hover,
+.control-btn-off:hover {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
 }
@@ -317,8 +310,8 @@ body {
 
 .header-info {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
   flex: 1;
   min-width: 0;
 }
@@ -349,20 +342,36 @@ body {
   white-space: nowrap;
 }
 
-/* .messages-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem;
-} */
+.user-info {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+
+.user-info span {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.user-info .control-btn-off {
+  color: var(--text-secondary);
+  font-size: small;
+}
+
+.user-info .control-btn-off:hover {
+  color: var(--text-primary);
+}
 
 .messages-container {
   flex: 1;
   max-height: 77vh;
-  /* Giới hạn chiều cao, ví dụ 70% chiều cao viewport */
   overflow-y: auto;
   padding: 1rem;
+  background-color: var(--bg-primary);
   scroll-behavior: smooth;
-  /* Cuộn mượt mà */
 }
 
 .messages-container::-webkit-scrollbar {
@@ -383,7 +392,7 @@ body {
 }
 
 .welcome-section {
-  max-width: 48rem;
+  max-width: 60rem;
   margin: 0 auto;
   text-align: center;
 }
@@ -417,7 +426,7 @@ body {
 }
 
 .suggested-questions {
-  max-width: 48rem;
+  max-width: 60rem;
   margin: 0 auto;
 }
 
@@ -467,7 +476,7 @@ body {
 }
 
 .messages {
-  max-width: 48rem;
+  max-width: 60rem;
   margin: 0 auto;
   padding: 1rem 0;
 }
@@ -486,7 +495,7 @@ body {
 }
 
 .message-content {
-  max-width: 48rem;
+  max-width: 60rem;
   width: 100%;
 }
 
@@ -537,7 +546,6 @@ body {
 
 .message.user .message-bubble {
   background-color: var(--accent-color);
-  color: white;
   margin-left: auto;
 }
 
@@ -550,6 +558,7 @@ body {
   font-size: 0.875rem;
   line-height: 1.5;
   white-space: pre-wrap;
+    color: var(--text-primary);
 }
 
 .typing-indicator {
@@ -581,13 +590,9 @@ body {
 }
 
 @keyframes typing {
-
-  0%,
-  60%,
-  100% {
+  0%, 60%, 100% {
     transform: translateY(0);
   }
-
   30% {
     transform: translateY(-10px);
   }
@@ -667,19 +672,6 @@ body {
   overflow: hidden;
 }
 
-.source-page {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
-}
-
-.source-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
 .source-score {
   font-size: 0.75rem;
   color: var(--text-secondary);
@@ -691,14 +683,13 @@ body {
   gap: 0.25rem;
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  color: white;
+  color: var(--text-secondary);
 }
 
 .message-timestamp i {
   font-size: 0.625rem;
 }
 
-/* Input Area Styles */
 .input-area {
   background-color: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
@@ -706,7 +697,7 @@ body {
 }
 
 .input-form {
-  max-width: 48rem;
+  max-width: 60rem;
   margin: 0 auto;
 }
 
@@ -756,7 +747,7 @@ body {
   justify-content: center;
 }
 
-/* #sendBtn:hover:not(:disabled) {
+#sendBtn:hover:not(:disabled) {
   background-color: var(--accent-hover);
   transform: translateY(-2px);
 }
@@ -764,7 +755,7 @@ body {
 #sendBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-} */
+}
 
 .input-hint {
   text-align: center;
@@ -773,13 +764,62 @@ body {
   margin-top: 0.5rem;
 }
 
-/* Mobile Overlay */
 .mobile-overlay {
   display: none;
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 40;
+}
+
+.related-questions {
+  margin-top: 1rem;
+}
+
+.related-questions .questions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.related-questions .question-btn {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition-ease);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.related-questions .question-btn:hover {
+  border-color: var(--accent-color);
+  background-color: var(--bg-tertiary);
+  transform: translateY(-2px);
+}
+
+
+.message .message.assistant .message-text{
+  color: var(--text-tertiary);
+}
+.message-timestamp{
+  color: var(--text-tertiary);
+}
+
+.related-questions .question-btn i {
+  color: var(--accent-color);
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.related-questions .question-btn span {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  line-height: 1.4;
 }
 
 /* Responsive Design */
@@ -821,6 +861,7 @@ body {
     margin-left: 1rem;
   }
 
+
   .message.assistant .message-content {
     margin-right: 1rem;
   }
@@ -829,6 +870,31 @@ body {
 @media (max-width: 640px) {
   .sidebar {
     width: 100vw;
+  }
+
+  .header-info {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .user-info {
+    margin-left: 0;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+  }
+
+  .bot-avatar {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+
+  .header-text h1 {
+    font-size: 1rem;
+  }
+
+  .header-text p {
+    font-size: 0.75rem;
   }
 
   .welcome-section {
@@ -853,6 +919,10 @@ body {
     margin-right: 0.5rem;
   }
 
+  .message-bubble {
+    width: 85%;
+  }
+
   .input-wrapper {
     gap: 0.5rem;
   }
@@ -860,6 +930,18 @@ body {
   #sendBtn {
     padding: 0.75rem;
     width: 2.75rem;
+  }
+
+  .header-text {
+    display: none;
+  }
+
+  .conversation-title {
+    max-width: 325px;
+  }
+
+  .suggested-questions h3 {
+    font-size: 1rem;
   }
 }
 
@@ -891,221 +973,8 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-.slide-in-right {
-  animation: slideInRight 0.3s ease-out;
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.slide-in-left {
-  animation: slideInLeft 0.3s ease-out;
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.related-questions {
-  margin-top: 1rem;
-}
-
-.related-questions .questions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-}
-
-.related-questions .question-btn {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  padding: 1rem;
-  text-align: left;
-  cursor: pointer;
-  transition: var(--transition-ease);
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  box-shadow: var(--shadow-sm);
-}
-
-.related-questions .question-btn:hover {
-  border-color: var(--accent-color);
-  background-color: var(--bg-tertiary);
-  transform: translateY(-2px);
-}
-
-.related-questions .question-btn i {
-  color: var(--accent-color);
-  margin-top: 0.125rem;
-  flex-shrink: 0;
-}
-
-.related-questions .question-btn span {
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  line-height: 1.4;
-}
-
-a {
-  color: var(--accent-color);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-/* dropdown */
-.header-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.user-info {
-  margin-left: auto;
-  /* Đẩy user-info sát bên phải */
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  /* Khoảng cách giữa các phần tử trong user-info */
-}
-
-@media (max-width: 640px) {
-  .sidebar {
-    width: 100vw;
-  }
-
-  .chat-area {
-    width: 100%;
-  }
-
-  /* Header Adjustments for user-info */
-  .header-info {
-    flex-wrap: wrap;
-    /* Allow wrapping to prevent overflow */
-    gap: 0.5rem;
-    /* Slightly reduce gap for compact layout */
-  }
-
-  .user-info {
-    margin-left: 0;
-    /* Remove auto margin to prevent misalignment */
-    gap: 0.5rem;
-    /* Reduce gap for mobile */
-    flex-wrap: nowrap;
-    /* Keep user-info items in a single row */
-  }
-
-  .bot-avatar {
-    width: 2rem;
-    /* Slightly smaller avatar */
-    height: 2rem;
-    font-size: 1rem;
-  }
-
-  .header-text h1 {
-    font-size: 1rem;
-    /* Smaller header text */
-  }
-
-  .header-text p {
-    font-size: 0.75rem;
-    /* Smaller subtitle text */
-  }
-
-  .menu-btn {
-    display: block;
-    /* Ensure menu button is visible */
-  }
-
-  .welcome-section {
-    padding: 1rem;
-  }
-
-  .welcome-section h2 {
-    font-size: 1.25rem;
-  }
-
-  .messages {
-    padding: 0.5rem 0;
-  }
-
-  .message-content {
-    max-width: 100%;
-  }
-
-  .message.user .message-content,
-  .message.assistant .message-content {
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-  }
-
-  /* Add fade-in animation for assistant messages */
-  .message.assistant {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  .message-bubble {
-    width: 85%;
-  }
-
-  .header-text {
-    display: none;
-  }
-
-  .conversation-title {
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
-    white-space: nowrap;
-    max-width: 325px;
-    /* Giới hạn chiều rộng của div */
-    white-space: nowrap;
-    /* Ngăn nội dung xuống dòng */
-    overflow: hidden;
-    /* Ẩn nội dung vượt quá */
-    text-overflow: ellipsis;
-    /* Hiển thị dấu ... khi nội dung bị cắt */
-
-  }
-
-  .suggested-questions h3 {
-    font-size: 1rem;
-    /* Smaller title for suggested questions */
-  }
-
-  .input-wrapper {
-    gap: 0.5rem;
-  }
-
-  #sendBtn {
-    padding: 0.75rem;
-    width: 2.75rem;
   }
 }
