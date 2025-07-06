@@ -8,6 +8,7 @@
   --text-tertiary: #ffffff;
   --border-color: #e5e7eb;
   --accent-color: #3b82f6;
+    --accent-colors:#ffffff;
   --accent-hover: #2563eb;
   --success-color: #10b981;
   --warning-color: #f59e0b;
@@ -560,12 +561,11 @@ body {
   white-space: pre-wrap;
     color: var(--text-primary);
 }
-
 .typing-indicator {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-secondary);
+  padding: 0.75rem 1rem; /* Đồng bộ với padding của .message-bubble */
 }
 
 .typing-dots {
@@ -576,7 +576,7 @@ body {
 .typing-dot {
   width: 0.5rem;
   height: 0.5rem;
-  background-color: var(--text-tertiary);
+  background-color: var(--text-secondary); /* Sử dụng màu accent để nổi bật hơn */
   border-radius: 50%;
   animation: typing 1.4s infinite ease-in-out;
 }
@@ -596,6 +596,12 @@ body {
   30% {
     transform: translateY(-10px);
   }
+}
+
+.typing-indicator span {
+  color: var(--text-primary); /* Sử dụng text-primary để tương phản tốt hơn */
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .message-sources {
