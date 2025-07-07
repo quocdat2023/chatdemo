@@ -223,6 +223,7 @@ body {
   padding: 1rem;
   border-top: 1px solid var(--border-color);
   background-color: var(--bg-secondary);
+  height: auto;
 }
 
 .controls {
@@ -273,6 +274,12 @@ body {
 
 .footer-text {
   text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.footer-text-image {
+  text-align: left;
   font-size: 0.75rem;
   color: var(--text-secondary);
 }
@@ -393,7 +400,7 @@ body {
 }
 
 .welcome-section {
-  max-width: 60rem;
+  max-width: 48rem;
   margin: 0 auto;
   text-align: center;
 }
@@ -427,7 +434,7 @@ body {
 }
 
 .suggested-questions {
-  max-width: 60rem;
+  max-width: 48rem;
   margin: 0 auto;
 }
 
@@ -477,7 +484,7 @@ body {
 }
 
 .messages {
-  max-width: 60rem;
+  max-width: 48rem;
   margin: 0 auto;
   padding: 1rem 0;
 }
@@ -496,7 +503,7 @@ body {
 }
 
 .message-content {
-  max-width: 60rem;
+  max-width: 48rem;
   width: 100%;
 }
 
@@ -703,7 +710,7 @@ body {
 }
 
 .input-form {
-  max-width: 60rem;
+  max-width: 48rem;
   margin: 0 auto;
 }
 
