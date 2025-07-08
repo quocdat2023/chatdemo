@@ -133,6 +133,23 @@ body {
   transition: var(--transition-ease);
 }
 
+
+.btn-upgrade {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: var(--transition-ease);
+}
+
 .new-chat-btn:hover {
   opacity: 0.9;
   transform: translateY(-2px);
@@ -990,4 +1007,30 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#query-count-display {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: color 0.3s ease;
+}
+
+#query-count-display.red {
+    color: red;
+}
+
+#query-count-display.orange {
+    color: orange;
+}
+
+#query-count-display.blue {
+    color: #3b82f6;
 }

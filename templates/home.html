@@ -7,8 +7,9 @@
     <title>LegalMind</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
 </head>
 
 <body>
@@ -45,7 +46,7 @@
                     <button class="control-btn" id="themeToggleBtn" title="Chuyển đổi chủ đề">
                         <i class="fas fa-moon"></i>
                     </button>
-                     <button class="control-btn" title="Đổi mật khẩu" onclick="window.location.href='/change_password'">
+                    <button class="control-btn" title="Đổi mật khẩu" onclick="window.location.href='/change_password'">
                         <i class="fa-solid fa-key"></i>
                     </button>
                     <select class="language-select" id="languageSelect">
@@ -54,13 +55,10 @@
                     </select>
                 </div>
                 <div class="footer-text">
+                    <div class="query-count"></div>
                     <p data-translate="appName">LegalMind</p>
                     <small data-translate="poweredBy">Được cung cấp bởi Công nghệ RAG</small>
                 </div>
-                <!-- <div class="footer-text-image">
-                    <img src="https://silicon.createx.studio/assets/img/logo.svg" alt="" style="width: 100px; height: 30px;">
-                    <small data-translate="poweredBy">Được cung cấp bởi Công nghệ RAG</small>
-                </div> -->
             </div>
         </div>
 
@@ -163,236 +161,248 @@
     <!-- Mobile Overlay -->
     <div class="mobile-overlay" id="mobileOverlay"></div>
 
-    <script>
-        // Application state
-        let currentUser = null;
-        let conversations = [];
-        let currentConversationId = null;
-        let messages = [];
-        let isLoading = false;
+  <script>
+    // Application state
+let currentUser = null;
+let conversations = [];
+let currentConversationId = null;
+let messages = [];
+let isLoading = false;
+let queryLimit = 10; // Default value, updated via checkSession
+let queryCount = 0;  // Default value, updated via checkSession
 
-        // DOM elements
-        let sidebar, mobileOverlay, menuBtn, closeSidebarBtn, newChatBtn, conversationsList,
-            messagesContainer, messagesDiv, welcomeSection, suggestedQuestionsElement,
-            inputForm, messageInput, sendBtn, themeToggleBtn, languageSelect;
+// DOM elements
+let sidebar, mobileOverlay, menuBtn, closeSidebarBtn, newChatBtn, conversationsList,
+    messagesContainer, messagesDiv, welcomeSection, suggestedQuestionsElement,
+    inputForm, messageInput, sendBtn, themeToggleBtn, languageSelect;
 
-        // Translation dictionary
-        const translations = {
-            en: {
-                chatHistory: 'Chat History',
-                newConversation: 'New Conversation',
-                noConversations: 'No conversations yet',
-                startNewChat: 'Start a new chat to get started',
-                message: 'message',
-                messages: 'messages',
-                relatedQuestions: 'Related Questions',
-                legalReferences: 'Legal References',
-                matchScore: 'Match Score',
-                analyzing: 'Analyzing...',
-                errorMessage: 'An error occurred. Please try again.',
-                appName: 'Legal Assistant AI',
-                poweredBy: 'Powered by RAG Technology',
-                appTitle: 'Legal Assistant AI',
-                appSubtitle: 'Ask about legal topics and get in-depth insights',
-                welcomeTitle: 'Welcome to Legal Assistant AI',
-                welcomeText: 'I am here to help you understand legal concepts, analyze contracts, and provide insights across various legal domains. Ask me anything about legal topics, and I will provide detailed and professional guidance.',
-                popularQuestions: 'Popular Questions',
-                question1: 'What are the essential elements of a valid contract?',
-                question2: 'Explain the difference between civil law and criminal law',
-                question3: 'What is intellectual property law?',
-                question4: 'How does contract termination work?',
-                question5: 'What are fiduciary duties in corporate law?',
-                question6: 'Explain force majeure clauses',
-                inputPlaceholder: 'Ask about legal topics...',
-                inputHint: 'Press Enter to send, Shift+Enter for new line'
-            },
-            vi: {
-                chatHistory: 'Lịch Sử Trò Chuyện',
-                newConversation: 'Hội Thoại Mới',
-                noConversations: 'Chưa có hội thoại nào',
-                startNewChat: 'Bắt đầu hội thoại mới để tiếp tục',
-                message: 'tin nhắn',
-                messages: 'tin nhắn',
-                relatedQuestions: 'Câu Hỏi Liên Quan',
-                legalReferences: 'Tài Liệu Pháp Lý',
-                matchScore: 'Độ Khớp',
-                analyzing: 'Đang phân tích...',
-                errorMessage: 'Có lỗi xảy ra. Vui lòng thử lại.',
-                appName: 'LegalMind',
-                poweredBy: 'Được cung cấp bởi Công nghệ RAG',
-                appTitle: 'LegalMind',
-                appSubtitle: 'Đặt câu hỏi về các chủ đề pháp lý và nhận được những góc nhìn chuyên sâu',
-                welcomeTitle: 'Chào mừng đến với LegalMind',
-                welcomeText: 'Tôi ở đây để giúp bạn hiểu các khái niệm pháp lý, phân tích hợp đồng và cung cấp thông tin chuyên sâu về các lĩnh vực pháp luật khác nhau. Hãy hỏi tôi bất cứ điều gì về các chủ đề pháp lý, tôi sẽ cung cấp hướng dẫn chi tiết và chuyên nghiệp.',
-                popularQuestions: 'Câu Hỏi Phổ Biến',
-                question1: 'Các yếu tố chính của một hợp đồng hợp lệ là gì?',
-                question2: 'Giải thích sự khác biệt giữa luật dân sự và luật hình sự',
-                question3: 'Luật sở hữu trí tuệ là gì?',
-                question4: 'Việc chấm dứt hợp đồng hoạt động như thế nào?',
-                question5: 'Nghĩa vụ ủy thác trong luật doanh nghiệp là gì?',
-                question6: 'Giải thích các điều khoản bất khả kháng',
-                inputPlaceholder: 'Đặt câu hỏi về các chủ đề pháp lý...',
-                inputHint: 'Nhấn Enter để gửi, Shift+Enter để xuống dòng'
-            }
-        };
+// Translation dictionary
+const translations = {
+    en: {
+        chatHistory: 'Chat History',
+        newConversation: 'New Conversation',
+        noConversations: 'No conversations yet',
+        startNewChat: 'Start a new chat to get started',
+        message: 'message',
+        messages: 'messages',
+        relatedQuestions: 'Related Questions',
+        legalReferences: 'Legal References',
+        matchScore: 'Match Score',
+        analyzing: 'Analyzing...',
+        errorMessage: 'An error occurred. Please try again later.',
+        appName: 'LegalMind',
+        poweredBy: 'Powered by RAG Technology',
+        appTitle: 'LegalMind',
+        appSubtitle: 'Ask about legal topics and get in-depth insights',
+        welcomeTitle: 'Welcome to LegalMind',
+        welcomeText: 'I am here to help you understand legal concepts, analyze contracts, and provide insights across various legal domains. Ask me anything about legal topics, and I will provide detailed and professional guidance.',
+        popularQuestions: 'Popular Questions',
+        question1: 'What are the essential elements of a valid contract?',
+        question2: 'Explain the difference between civil law and criminal law',
+        question3: 'What is intellectual property law?',
+        question4: 'How does contract termination work?',
+        question5: 'What are fiduciary duties in corporate law?',
+        question6: 'Explain force majeure clauses',
+        inputPlaceholder: 'Ask about legal topics...',
+        inputHint: 'Press Enter to send, Shift+Enter for new line'
+    },
+    vi: {
+        chatHistory: 'Lịch Sử Trò Chuyện',
+        newConversation: 'Hội Thoại Mới',
+        noConversations: 'Chưa có hội thoại nào',
+        startNewChat: 'Bắt đầu hội thoại mới để tiếp tục',
+        message: 'tin nhắn',
+        messages: 'tin nhắn',
+        relatedQuestions: 'Câu Hỏi Liên Quan',
+        legalReferences: 'Tài Liệu Pháp Lý',
+        matchScore: 'Độ Khớp',
+        analyzing: 'Đang phân tích...',
+        errorMessage: 'Lỗi hệ thống. Vui lòng thử lại sau.',
+        appName: 'LegalMind',
+        poweredBy: 'Được cung cấp bởi Công nghệ RAG',
+        appTitle: 'LegalMind',
+        appSubtitle: 'Đặt câu hỏi về các chủ đề pháp lý và nhận được những góc nhìn chuyên sâu',
+        welcomeTitle: 'Chào mừng đến với LegalMind',
+        welcomeText: 'Tôi ở đây để giúp bạn hiểu các khái niệm pháp lý, phân tích hợp đồng và cung cấp thông tin chuyên sâu về các lĩnh vực pháp luật khác nhau. Hãy hỏi tôi bất cứ điều gì về các chủ đề pháp lý, tôi sẽ cung cấp hướng dẫn chi tiết và chuyên nghiệp.',
+        popularQuestions: 'Câu Hỏi Phổ Biến',
+        question1: 'Các yếu tố chính của một hợp đồng hợp lệ là gì?',
+        question2: 'Giải thích sự khác biệt giữa luật dân sự và luật hình sự',
+        question3: 'Luật sở hữu trí tuệ là gì?',
+        question4: 'Việc chấm dứt hợp đồng hoạt động như thế nào?',
+        question5: 'Nghĩa vụ ủy thác trong luật doanh nghiệp là gì?',
+        question6: 'Giải thích các điều khoản bất khả kháng',
+        inputPlaceholder: 'Đặt câu hỏi về các chủ đề pháp lý...',
+        inputHint: 'Nhấn Enter để gửi, Shift+Enter để xuống dòng'
+    }
+};
 
-        function convertToVietnamTime(timestamp) {
-            let date = new Date(timestamp);
-            let options = { timeZone: 'Asia/Ho_Chi_Minh', timeStyle: 'short', dateStyle: 'short' };
-            return date.toLocaleString('vi-VN', options);
+// Initialize Socket.IO
+const socket = io(); // Connects to the same host as the page
+
+function convertToVietnamTime(timestamp) {
+    let date = new Date(timestamp);
+    let options = { timeZone: 'Asia/Ho_Chi_Minh', timeStyle: 'short', dateStyle: 'short' };
+    return date.toLocaleString('vi-VN', options);
+}
+
+// Authentication functions
+async function checkSession() {
+    try {
+        const response = await fetch('/check_session');
+        const data = await response.json();
+        if (data.logged_in) {
+            currentUser = data.username;
+            queryLimit = data.query_limit || 10;
+            queryCount = data.query_count || 0;
+            currentUserType = data.account_type || currentUserType;
+            loadConversations();
+            renderUserInfo(); 
+            renderUserQueryCount();
+        } else {
+            window.location.href = '/login';
         }
+    } catch (error) {
+        console.error('Error checking session:', error);
+        window.location.href = '/login';
+    }
+}
 
-        // Authentication functions
-        async function checkSession() {
-            try {
-                const response = await fetch('/check_session');
-                const data = await response.json();
-                if (data.logged_in) {
-                    currentUser = data.username;
-                    loadConversations();
-                    renderUserInfo();
-                } else {
-                    window.location.href = '/login';
-                }
-            } catch (error) {
-                console.error('Error checking session:', error);
-                window.location.href = '/login';
-            }
-        }
-
-        async function logout() {
-            try {
-                const response = await fetch('/logout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (response.ok) {
-                    currentUser = null;
-                    conversations = [];
-                    currentConversationId = null;
-                    messages = [];
-                    renderConversations();
-                    renderMessages();
-                    renderUserInfo();
-                    window.location.href = '/';
-                } else {
-                    alert('Lỗi khi đăng xuất');
-                }
-            } catch (error) {
-                alert('Lỗi khi đăng xuất');
-            }
-        }
-
-        // Conversation management
-        async function loadConversations() {
-            if (!currentUser) return;
-            try {
-                const response = await fetch('/conversations');
-                const data = await response.json();
-                if (response.ok) {
-                    conversations = data;
-                    renderConversations();
-                } else {
-                    alert(data.error);
-                }
-            } catch (error) {
-                console.error('Error loading conversations:', error);
-            }
-        }
-
-        async function loadConversation(conversationId) {
-            if (!currentUser) {
-                window.location.href = '/login';
-                return;
-            }
-            try {
-                const response = await fetch(`/conversation/${conversationId}`);
-                const data = await response.json();
-                if (response.ok) {
-                    currentConversationId = conversationId;
-                    messages = data.messages;
-                    renderMessages();
-                    closeSidebar();
-                } else {
-                    alert(data.error);
-                }
-            } catch (error) {
-                console.error('Error loading conversation:', error);
-            }
-        }
-
-        async function deleteConversation(conversationId) {
-            if (!currentUser) {
-                window.location.href = '/login';
-                return;
-            }
-            try {
-                const response = await fetch(`/conversation/${conversationId}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    conversations = conversations.filter(conv => conv.id !== conversationId);
-                    if (currentConversationId === conversationId) {
-                        currentConversationId = null;
-                        messages = [];
-                        renderMessages();
-                    }
-                    renderConversations();
-                } else {
-                    alert(data.error);
-                }
-            } catch (error) {
-                console.error('Error deleting conversation:', error);
-            }
-        }
-
-        function createNewConversation() {
-            if (!currentUser) {
-                window.location.href = '/login';
-                return;
-            }
+async function logout() {
+    try {
+        const response = await fetch('/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+            currentUser = null;
+            conversations = [];
             currentConversationId = null;
             messages = [];
+            queryCount = 0;
+            queryLimit = 10;
+            renderConversations();
+            renderMessages();
+            renderUserInfo(); 
+            renderUserQueryCount();
+            window.location.href = '/';
+        } else {
+            alert('Lỗi khi đăng xuất');
+        }
+    } catch (error) {
+        alert('Lỗi khi đăng xuất');
+    }
+}
+
+// Conversation management
+async function loadConversations() {
+    if (!currentUser) return;
+    try {
+        const response = await fetch('/conversations');
+        const data = await response.json();
+        if (response.ok) {
+            conversations = data;
+            renderConversations();
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        console.error('Error loading conversations:', error);
+    }
+}
+
+async function loadConversation(conversationId) {
+    if (!currentUser) {
+        window.location.href = '/login';
+        return;
+    }
+    try {
+        const response = await fetch(`/conversation/${conversationId}`);
+        const data = await response.json();
+        if (response.ok) {
+            currentConversationId = conversationId;
+            messages = data.messages;
             renderMessages();
             closeSidebar();
+        } else {
+            alert(data.error);
         }
+    } catch (error) {
+        console.error('Error loading conversation:', error);
+    }
+}
 
-        function selectConversation(conversationId) {
-            if (!currentUser) {
-                window.location.href = '/login';
-                return;
+async function deleteConversation(conversationId) {
+    if (!currentUser) {
+        window.location.href = '/login';
+        return;
+    }
+    try {
+        const response = await fetch(`/conversation/${conversationId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (response.ok) {
+            conversations = conversations.filter(conv => conv.id !== conversationId);
+            if (currentConversationId === conversationId) {
+                currentConversationId = null;
+                messages = [];
+                renderMessages();
             }
-            loadConversation(conversationId);
+            renderConversations();
+        } else {
+            alert(data.error);
         }
+    } catch (error) {
+        console.error('Error deleting conversation:', error);
+    }
+}
 
-        function updateConversationTitle(conversationId, newTitle, messageCount) {
-            const conversation = conversations.find(conv => conv.id === conversationId);
-            if (conversation) {
-                if (conversation.message_count === 0) {
-                    conversation.title = newTitle.slice(0, 50) + (newTitle.length > 50 ? '...' : '');
-                }
-                conversation.message_count = messageCount;
-                conversation.timestamp = new Date().toISOString();
-                renderConversations();
-            }
+function createNewConversation() {
+    if (!currentUser) {
+        window.location.href = '/login';
+        return;
+    }
+    currentConversationId = null;
+    messages = [];
+    renderMessages();
+    closeSidebar();
+}
+
+function selectConversation(conversationId) {
+    if (!currentUser) {
+        window.location.href = '/login';
+        return;
+    }
+    loadConversation(conversationId);
+}
+
+function updateConversationTitle(conversationId, newTitle, messageCount) {
+    const conversation = conversations.find(conv => conv.id === conversationId);
+    if (conversation) {
+        if (conversation.message_count === 0) {
+            conversation.title = newTitle.slice(0, 50) + (newTitle.length > 50 ? '...' : '');
         }
+        conversation.message_count = messageCount;
+        conversation.timestamp = new Date().toISOString();
+        renderConversations();
+    }
+}
 
-        function renderConversations() {
-            if (!conversationsList) return;
-            if (!currentUser || conversations.length === 0) {
-                conversationsList.innerHTML = `
+function renderConversations() {
+    if (!conversationsList) return;
+    if (!currentUser || conversations.length === 0) {
+        conversationsList.innerHTML = `
             <div class="empty-conversations">
                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square h-12 w-12 text-gray-300 mx-auto mb-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 <p data-translate="noConversations">${translate('noConversations')}</p>
                 <small data-translate="startNewChat">${translate('startNewChat')}</small>
             </div>
         `;
-                return;
-            }
+        return;
+    }
 
-            conversationsList.innerHTML = conversations.map(conversation => `
+    conversationsList.innerHTML = conversations.map(conversation => `
         <div class="conversation-item ${conversation.id === currentConversationId ? 'active' : ''}" 
              data-conversation-id="${conversation.id}">
             <div class="conversation-title">${conversation.title}</div>
@@ -407,64 +417,62 @@
         </div>
     `).join('');
 
-            conversationsList.querySelectorAll('.conversation-item').forEach(item => {
-                                        closeSidebarBtn.addEventListener('click', closeSidebar);
-
-                item.addEventListener('click', (e) => {
-                    if (!e.target.closest('.delete-conversation')) {
-                        selectConversation(item.dataset.conversationId);
-                    }
-                });
-            });
-
-            conversationsList.querySelectorAll('.delete-conversation').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deleteConversation(btn.dataset.conversationId);
-                });
-            });
-        }
-
-        // Message management
-        function addMessage(type, content, sources = null, relatedQuestions = null, isTyping = false) {
-            if (!messagesDiv) return;
-            const message = {
-                id: Date.now().toString() + (isTyping ? '-typing' : ''),
-                type,
-                content,
-                timestamp: new Date().toISOString(),
-                sources,
-                relatedQuestions,
-                isTyping
-            };
-
-            if (isTyping) {
-                messages = messages.filter(msg => !msg.isTyping);
+    conversationsList.querySelectorAll('.conversation-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (!e.target.closest('.delete-conversation')) {
+                selectConversation(item.dataset.conversationId);
             }
+        });
+    });
 
-            messages.push(message);
-            renderMessages();
+    conversationsList.querySelectorAll('.delete-conversation').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteConversation(btn.dataset.conversationId);
+        });
+    });
+}
 
-            return message.id;
-        }
+// Message management
+function addMessage(type, content, sources = null, relatedQuestions = null, isTyping = false) {
+    if (!messagesDiv) return;
+    const message = {
+        id: Date.now().toString() + (isTyping ? '-typing' : ''),
+        type,
+        content,
+        timestamp: new Date().toISOString(),
+        sources,
+        relatedQuestions,
+        isTyping
+    };
 
-        function removeMessage(messageId) {
-            if (!messagesDiv) return;
-            messages = messages.filter(msg => msg.id !== messageId);
-            renderMessages();
-        }
+    if (isTyping) {
+        messages = messages.filter(msg => !msg.isTyping);
+    }
 
-        function renderMessages() {
-            if (!messagesDiv) return;
-            const hasMessages = messages.length > 0;
-            const hasConversation = currentConversationId !== null;
+    messages.push(message);
+    renderMessages();
 
-            welcomeSection.style.display = hasMessages ? 'none' : 'block';
+    return message.id;
+}
 
-            if (!hasMessages && !hasConversation) {
-                suggestedQuestionsElement.style.display = 'block';
-                const currentLang = getCurrentLanguage();
-                suggestedQuestionsElement.innerHTML = `
+function removeMessage(messageId) {
+    if (!messagesDiv) return;
+    messages = messages.filter(msg => msg.id !== messageId);
+    renderMessages();
+}
+
+function renderMessages() {
+    if (!messagesDiv) return;
+    const hasMessages = messages.length > 0;
+    const hasConversation = currentConversationId !== null;
+
+    welcomeSection.style.display = hasMessages ? 'none' : 'block';
+
+    if (!hasMessages && !hasConversation) {
+        suggestedQuestionsElement.style.display = 'block';
+        const currentLang = getCurrentLanguage();
+        suggestedQuestionsElement.innerHTML = `
             <h3 data-translate="popularQuestions">${translate('popularQuestions')}</h3>
             <div class="questions-grid">
                 <button class="question-btn" data-question="${translations[currentLang].question1}">
@@ -493,21 +501,21 @@
                 </button>
             </div>
         `;
-                suggestedQuestionsElement.querySelectorAll('.question-btn').forEach(btn => {
-                    btn.addEventListener('click', () => sendMessage(btn.dataset.question));
-                });
-            } else {
-                suggestedQuestionsElement.style.display = 'none';
-            }
+        suggestedQuestionsElement.querySelectorAll('.question-btn').forEach(btn => {
+            btn.addEventListener('click', () => sendMessage(btn.dataset.question));
+        });
+    } else {
+        suggestedQuestionsElement.style.display = 'none';
+    }
 
-            if (!hasMessages) {
-                messagesDiv.innerHTML = '';
-                return;
-            }
+    if (!hasMessages) {
+        messagesDiv.innerHTML = '';
+        return;
+    }
 
-            messagesDiv.innerHTML = messages.map(message => {
-                if (message.isTyping) {
-                    return `
+    messagesDiv.innerHTML = messages.map(message => {
+        if (message.isTyping) {
+            return `
                 <div class="message assistant fade-in">
                     <div class="message-content">
                         <div class="message-wrapper">
@@ -528,9 +536,9 @@
                     </div>
                 </div>
             `;
-                }
+        }
 
-                const sourcesHtml = message.sources ? `
+        const sourcesHtml = message.sources ? `
             <div class="message-sources">
                 <div class="sources-title">${translate('legalReferences')}</div>
                 ${message.sources.map(source => `
@@ -552,21 +560,21 @@
             </div>
         ` : '';
 
-                const relatedQuestionsHtml = message.relatedQuestions ? `
-             <div class="related-questions">
-                        <div class="sources-title">${translate('relatedQuestions')}</div>
-                        <div class="questions-grid">
-                             ${message.relatedQuestions.map(q => `
-                                <button class="question-btn" data-question="${q.question}">
-                                    <i class="fa-solid fa-circle-question"></i>
-                                    <span>${q.question}</span>
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
+        const relatedQuestionsHtml = message.relatedQuestions ? `
+            <div class="related-questions">
+                <div class="sources-title">${translate('relatedQuestions')}</div>
+                <div class="questions-grid">
+                    ${message.relatedQuestions.map(q => `
+                        <button class="question-btn" data-question="${q.question}">
+                            <i class="fa-solid fa-circle-question"></i>
+                            <span>${q.question}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
         ` : '';
 
-                return `
+        return `
             <div class="message ${message.type} fade-in">
                 <div class="message-content">
                     <div class="message-wrapper">
@@ -583,231 +591,293 @@
                 </div>
             </div>
         `;
-            }).join('');
+    }).join('');
 
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-            messagesDiv.querySelectorAll('.question-btn').forEach(btn => {
-                btn.addEventListener('click', () => sendMessage(btn.dataset.question));
-            });
-        }
+    messagesDiv.querySelectorAll('.question-btn').forEach(btn => {
+        btn.addEventListener('click', () => sendMessage(btn.dataset.question));
+    });
+}
 
-        async function sendMessage(content) {
-            if (!content.trim() || isLoading || !currentUser) {
-                if (!currentUser) window.location.href = '/login';
-                return;
+async function sendMessage(content) {
+    if (!content.trim() || isLoading || !currentUser) {
+        if (!currentUser) window.location.href = '/login';
+        return;
+    }
+
+    const messageData = { question: content };
+    if (currentConversationId) {
+        messageData.conversation_id = currentConversationId;
+    }
+
+    addMessage('user', content);
+    const messageCount = messages.filter(msg => !msg.isTyping).length;
+    updateConversationTitle(currentConversationId, content, messageCount);
+
+    isLoading = true;
+    updateSendButton();
+
+    const typingId = addMessage('assistant', '', null, null, true);
+
+    try {
+        const response = await fetch('/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(messageData)
+        });
+
+        const data = await response.json();
+        removeMessage(typingId);
+        if (response.ok) {
+            currentConversationId = data.conversation_id;
+            queryCount = data.query_count || queryCount;
+            queryLimit = data.query_limit || queryLimit;
+            addMessage('assistant', data.final_response, data.top_banan_documents, data.related_questions);
+            loadConversations();
+            renderUserInfo(); 
+            renderUserQueryCount();
+        } else {
+            let errorMessage = data.error || translate('errorMessage');
+            if (data.error_code === 'QUERY_LIMIT_EXCEEDED') {
+                errorMessage = `${data.error} <br><a href="${data.upgrade_url}" class="btn btn-primary btn-sm mt-2">Nâng cấp tài khoản</a>`;
+                queryCount = data.query_count || queryCount;
+                queryLimit = data.query_limit || queryLimit;
+                renderUserInfo(); 
+                renderUserQueryCount();
             }
-
-            const messageData = { question: content };
-            if (currentConversationId) {
-                messageData.conversation_id = currentConversationId;
-            }
-
-            addMessage('user', content);
-            const messageCount = messages.filter(msg => !msg.isTyping).length;
-            updateConversationTitle(currentConversationId, content, messageCount);
-
-            isLoading = true;
-            updateSendButton();
-
-            const typingId = addMessage('assistant', '', null, null, true);
-
-            try {
-                const response = await fetch('/query', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(messageData)
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    removeMessage(typingId);
-                    currentConversationId = data.conversation_id;
-                    addMessage('assistant', data.final_response, data.top_banan_documents, data.related_questions);
-                    loadConversations();
-                } else {
-                    throw new Error(data.error);
-                }
-            } catch (error) {
-                removeMessage(typingId);
-                addMessage('assistant', translate('errorMessage'));
-            } finally {
-                isLoading = false;
-                updateSendButton();
-            }
+            addMessage('assistant', errorMessage);
         }
-
-        // Utility functions
-        function translate(key) {
-            const lang = getCurrentLanguage();
-            return translations[lang][key] || key;
+    } catch (error) {
+        removeMessage(typingId);
+        let errorMessage;
+        if (error.message.includes('429') || (queryLimit !== null && queryCount >= queryLimit)) {
+            // Handle query limit exceeded error
+            errorMessage = `Bạn đã sử dụng hết ${queryLimit} lượt hỏi đáp hôm nay <br><a href="https://legal.loca.lt" class="btn btn-primary btn-sm mt-2">Nâng cấp tài khoản</a>`;
+        } else {
+            // Handle general server error
+            errorMessage = `Có lỗi xảy ra khi kết nối với máy chủ. Vui lòng thử lại sau.`;
         }
+        addMessage('assistant', errorMessage);
+        renderUserQueryCount(); // Update query count display in case of error
+    } finally {
+        isLoading = false;
+        updateSendButton();
+    }
+}
+// Utility functions
+function translate(key) {
+    const lang = getCurrentLanguage();
+    return translations[lang][key] || key;
+}
 
-        function getCurrentLanguage() {
-            return languageSelect ? languageSelect.value : 'vi';
-        }
+function getCurrentLanguage() {
+    return languageSelect ? languageSelect.value : 'vi';
+}
 
-        function setLanguage(lang) {
-            if (languageSelect) languageSelect.value = lang;
-            document.querySelectorAll('[data-translate]').forEach(element => {
-                const key = element.dataset.translate;
-                element.textContent = translate(key);
-            });
-            document.querySelectorAll('[data-translate-placeholder]').forEach(element => {
-                const key = element.dataset.translatePlaceholder;
-                element.placeholder = translate(key);
-            });
-            renderConversations();
-            renderMessages();
-        }
+function setLanguage(lang) {
+    if (languageSelect) languageSelect.value = lang;
+    document.querySelectorAll('[data-translate]').forEach(element => {
+        const key = element.dataset.translate;
+        element.textContent = translate(key);
+    });
+    document.querySelectorAll('[data-translate-placeholder]').forEach(element => {
+        const key = element.dataset.translatePlaceholder;
+        element.placeholder = translate(key);
+    });
+    renderConversations();
+    renderMessages();
+    renderUserInfo(); 
+    renderUserQueryCount();
+}
 
-        function formatTimestamp(timestamp) {
-            const date = new Date(timestamp);
-            return date.toLocaleString(getCurrentLanguage() === 'vi' ? 'vi-VN' : 'en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-        }
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString(getCurrentLanguage() === 'vi' ? 'vi-VN' : 'en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+}
 
-        function updateSendButton() {
-            if (!sendBtn) return;
-            sendBtn.disabled = isLoading || !messageInput.value.trim();
-            sendBtn.innerHTML = isLoading ? '<i class="fas fa-spinner fa-spin"></i>' : '<i class="fas fa-paper-plane"></i>';
-        }
+function updateSendButton() {
+    if (!sendBtn) return;
+    sendBtn.disabled = isLoading || !messageInput.value.trim();
+    sendBtn.innerHTML = isLoading ? '<i class="fas fa-spinner fa-spin"></i>' : '<i class="fas fa-paper-plane"></i>';
+}
 
-        function initializeTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            if (themeToggleBtn) {
-                themeToggleBtn.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-            }
-        }
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if (themeToggleBtn) {
+        themeToggleBtn.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+    }
+}
 
-        function toggleSidebar() {
-            if (!sidebar) return;
-            sidebar.classList.toggle('open');
-            mobileOverlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
-        }
+function toggleSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.toggle('open');
+    mobileOverlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+}
 
-        function closeSidebar() {
-            if (!sidebar) return;
-            sidebar.classList.remove('open');
-            mobileOverlay.style.display = 'none';
-        }
+function closeSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.remove('open');
+    mobileOverlay.style.display = 'none';
+}
 
-        // Render user info
-        function renderUserInfo() {
-            const headerInfo = document.querySelector('.header-info');
-            headerInfo.innerHTML = `
+
+function renderUserQueryCount() {
+    const queryCountDisplay = document.querySelector('.query-count');
+    queryCountDisplay.innerHTML = `
+
+            ${currentUser ? `
+                <span id="query-count-display" class="${queryLimit !== null && queryCount >= queryLimit ? 'red' : queryLimit !== null && queryCount+1 === queryLimit ? 'orange' : 'blue'}" style="margin-left: 10px;">
+                    ${currentUserType === 'unlimited' ? 'Không giới hạn lượt hỏi' :`Lượt hỏi: ${queryCount}/${queryLimit}`}
+                     
+                </span>
+            ` : ''}
+    `;
+ 
+}
+
+
+function renderUserInfo() {
+    const headerInfo = document.querySelector('.header-info');
+    headerInfo.innerHTML = `
         <div class="bot-avatar">
             <i class="fas fa-robot"></i>
         </div>
-        <div class="header-text "style="padding-left: 5px !important;">
+        <div class="header-text" style="padding-left: 5px !important;">
             <h1 data-translate="appTitle">${translate('appTitle')}</h1>
             <p id="appSubtitle" data-translate="appSubtitle">${translate('appSubtitle')}</p>
         </div>
-        <div class="user-info" >
+        <div class="user-info">
             ${currentUser ? `
                 <span>Xin chào, ${currentUser}</span>
-                <button class="control-btn-off" id="logoutBtn"><i class="fa-solid fa-power-off"></i></button>
-            ` :``}
+                <button class="control-btn-off btn btn-sm" id="logoutBtn">
+                    <i class="fa-solid fa-power-off"></i> Đăng xuất
+                </button>
+            ` : ''}
         </div>
     `;
 
-            if (currentUser) {
-                const logoutBtn = headerInfo.querySelector('#logoutBtn');
-                if (logoutBtn) logoutBtn.addEventListener('click', logout);
-            } else {
-                const loginBtn = headerInfo.querySelector('#loginBtn');
-                const registerBtn = headerInfo.querySelector('#registerBtn');
-                if (loginBtn) loginBtn.addEventListener('click', () => window.location.href = '/login');
-                if (registerBtn) registerBtn.addEventListener('click', () => window.location.href = '/register');
-            }
-        }
+    if (currentUser) {
+        const logoutBtn = headerInfo.querySelector('#logoutBtn');
+        if (logoutBtn) logoutBtn.addEventListener('click', logout);
+    }
+}
 
-        function initializeDOM() {
-            sidebar = document.getElementById('sidebar');
-            mobileOverlay = document.getElementById('mobileOverlay');
-            menuBtn = document.getElementById('menuBtn');
-            closeSidebarBtn = document.getElementById('closeSidebarBtn');
-            newChatBtn = document.getElementById('newChatBtn');
-            conversationsList = document.getElementById('conversationsList');
-            messagesContainer = document.getElementById('messagesContainer');
-            messagesDiv = document.getElementById('messages');
-            welcomeSection = document.getElementById('welcomeSection');
-            suggestedQuestionsElement = document.getElementById('suggestedQuestions');
-            inputForm = document.getElementById('inputForm');
-            messageInput = document.getElementById('messageInput');
-            sendBtn = document.getElementById('sendBtn');
-            themeToggleBtn = document.getElementById('themeToggleBtn');
-            languageSelect = document.getElementById('languageSelect');
-        }
+function initializeDOM() {
+    sidebar = document.getElementById('sidebar');
+    mobileOverlay = document.getElementById('mobileOverlay');
+    menuBtn = document.getElementById('menuBtn');
+    closeSidebarBtn = document.getElementById('closeSidebarBtn');
+    newChatBtn = document.getElementById('newChatBtn');
+    conversationsList = document.getElementById('conversationsList');
+    messagesContainer = document.getElementById('messagesContainer');
+    messagesDiv = document.getElementById('messages');
+    welcomeSection = document.getElementById('welcomeSection');
+    suggestedQuestionsElement = document.getElementById('suggestedQuestions');
+    inputForm = document.getElementById('inputForm');
+    messageInput = document.getElementById('messageInput');
+    sendBtn = document.getElementById('sendBtn');
+    themeToggleBtn = document.getElementById('themeToggleBtn');
+    languageSelect = document.getElementById('languageSelect');
+}
 
-        function initializeEventListeners() {
-            if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
-            if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
-            if (mobileOverlay) mobileOverlay.addEventListener('click', closeSidebar);
-            if (newChatBtn) newChatBtn.addEventListener('click', createNewConversation);
+function initializeEventListeners() {
+    if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
+    if (mobileOverlay) mobileOverlay.addEventListener('click', closeSidebar);
+    if (newChatBtn) newChatBtn.addEventListener('click', createNewConversation);
 
-            if (messageInput) {
-                messageInput.addEventListener('input', () => {
-                    messageInput.style.height = 'auto';
-                    messageInput.style.height = `${messageInput.scrollHeight}px`;
-                    updateSendButton();
-                });
-                messageInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        inputForm.dispatchEvent(new Event('submit'));
-                    }
-                });
-            }
-
-            if (inputForm) {
-                inputForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const content = messageInput.value.trim();
-                    if (content) {
-                        sendMessage(content);
-                        messageInput.value = '';
-                        messageInput.style.height = 'auto';
-                        updateSendButton();
-                    }
-                });
-            }
-
-      
-        // Theme toggle functionality
-        if (themeToggleBtn) {
-            themeToggleBtn.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                themeToggleBtn.innerHTML = newTheme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-                closeSidebar();
-            });
-        }
-
-            if (languageSelect) {
-                languageSelect.addEventListener('change', () => {
-                    setLanguage(languageSelect.value);
-                });
-            }
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeDOM();
-            setLanguage('vi');
-            initializeTheme();
-            initializeEventListeners();
-            checkSession();
+    if (messageInput) {
+        messageInput.addEventListener('input', () => {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = `${messageInput.scrollHeight}px`;
+            updateSendButton();
         });
-    </script>
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                inputForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    }
+
+    if (inputForm) {
+        inputForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const content = messageInput.value.trim();
+            if (content) {
+                sendMessage(content);
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                updateSendButton();
+            }
+        });
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeToggleBtn.innerHTML = newTheme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+            closeSidebar();
+        });
+    }
+
+    if (languageSelect) {
+        languageSelect.addEventListener('change', () => {
+            setLanguage(languageSelect.value);
+        });
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDOM();
+    setLanguage('vi');
+    initializeTheme();
+    initializeEventListeners();
+    checkSession();
+
+    // Listen for query_update events
+    socket.on('query_update', (data) => {
+        console.log('Received query update:', data);
+        queryCount = data.query_count || queryCount;
+        queryLimit = data.query_limit || queryLimit;
+        currentUserType = data.user_type || currentUserType; // Update user type if provided
+        renderUserInfo(); 
+        renderUserQueryCount();
+        // if (queryLimit !== null) {
+        //     if (queryCount >= queryLimit) {
+        //         alert('Bạn đã sử dụng hết lượt hỏi hôm nay!');
+        //     } else if (queryCount + 1 === queryLimit) {
+        //         alert('Cảnh báo: Bạn còn 1 lượt hỏi cuối cùng hôm nay!');
+        //     }
+        // }
+    });
+
+    socket.on('connect', () => {
+        console.log('Connected to WebSocket server');
+    });
+
+    socket.on('connect_error', (error) => {
+        console.error('WebSocket connection error:', error);
+        setTimeout(() => socket.connect(), 5000);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Disconnected from WebSocket server');
+    });
+});
+  </script>
 </body>
 
 </html>
