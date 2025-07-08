@@ -440,7 +440,6 @@ def change_password():
         return jsonify({'error': 'Đổi mật khẩu thành công nhưng lỗi khi gửi email xác nhận'}), 200
 
 # # Đăng nhập
-# In /logins endpoint
 @app.route('/logins', methods=['POST'])
 def login():
     data = request.get_json(silent=True) or {}
@@ -469,14 +468,17 @@ def login():
         }, room=connected_clients[str(user['_id'])])
         logging.info(f"Broadcasted initial query update to user {user['_id']}")
     
+
     return jsonify({
         'message': 'Đăng nhập thành công',
         'username': user['username'],
         'is_admin': user.get('is_admin', False),
         'account_type': user.get('account_type', 'limited'),
         'query_limit': user.get('query_limit', 3),
-        'query_count': user.get('query_count', 0)
+        'query_count': user.get('query_count', 0),
     }), 200
+
+
 # @app.route('/logins', methods=['POST'])
 # def login():
 #     data = request.get_json(silent=True) or {}
@@ -963,6 +965,7 @@ def delete_conversation(conversation_id):
 @admin_required
 def admin_dashboard():
     users = db.users.find()
+    user_name = session.get('username')
     users_list = [{
         'id': str(user['_id']),
         'username': user['username'],
@@ -975,7 +978,7 @@ def admin_dashboard():
         'query_count': user.get('query_count', 0),
         'last_reset': user.get('last_reset', None).isoformat() if user.get('last_reset') else None
     } for user in users]
-    return render_template('admin_dashboard.html', users=users_list)
+    return render_template('admin_dashboard.html', users=users_list, user_name = user_name)
 
 @app.route('/admin/users', methods=['GET'])
 @admin_required

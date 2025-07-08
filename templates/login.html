@@ -479,8 +479,14 @@
                     if (data.error) {
                         showMessage('login-message', data.error, 'danger');
                     } else {
+                        if(data.is_admin === true){
+                        showMessage('login-message', data.message, 'success');
+                        setTimeout(() => window.location.href = '/admin/dashboard', 2000);
+                        }else{
                         showMessage('login-message', data.message, 'success');
                         setTimeout(() => window.location.href = '/home', 2000);
+                        }
+                      
                     }
                 })
                 .catch(error => {
