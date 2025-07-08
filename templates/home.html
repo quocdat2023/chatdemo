@@ -735,7 +735,7 @@ function renderUserQueryCount() {
 
             ${currentUser ? `
                 <span id="query-count-display" class="${queryLimit !== null && queryCount >= queryLimit ? 'red' : queryLimit !== null && queryCount+1 === queryLimit ? 'orange' : 'blue'}" style="margin-left: 10px;">
-                    ${currentUserType === 'unlimited' ? 'Không giới hạn lượt hỏi' :`Lượt hỏi: ${queryCount}/${queryLimit}`}
+                    ${currentUserType === 'unlimited' ? 'Không giới hạn' :`Lượt hỏi: ${queryCount}/${queryLimit}`}
                      
                 </span>
             ` : ''}
