@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Initialize Flask app and SocketIO
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with a secure key
+app.config['SECRET_KEY'] = 'NQJWnj7YwbQML8yE'  # Replace with a secure key
 app.config['MONGO_URI'] = 'mongodb+srv://itdatit12:NQJWnj7YwbQML8yE@cluster0.pwv2g0y.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
 app.config['SMTP_SERVER'] = 'smtp.gmail.com'
 app.config['SMTP_PORT'] = 587

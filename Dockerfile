@@ -4,18 +4,23 @@ FROM python:3.11-slim
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements.txt .
-
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Install additional system dependencies for MongoDB and other libraries
+# Install system dependencies for MongoDB and other libraries
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy the requirements file into the container
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Set up a cache directory with proper permissions
+ENV HF_HOME=/app/.cache/huggingface
+RUN mkdir -p /app/.cache/huggingface && \
+    chmod -R 777 /app/.cache/huggingface
 
 # Copy the entire application code into the container
 COPY . .
