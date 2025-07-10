@@ -640,7 +640,7 @@ def query():
             'error_code': 'QUERY_LIMIT_EXCEEDED',
             'query_count': query_count,
             'query_limit': query_limit,
-            'upgrade_url': 'https://legal.loca.lt'  # Redirect to upgrade page
+            'upgrade_url': 'https://legalmindver1.loca.lt'  # Redirect to upgrade page
         }), 403
     elif error_message:  # Warning for last query
         logging.info(f"User {user_id} received warning: {error_message}")
@@ -689,7 +689,7 @@ def query():
                 'query_count': query_count,
                 'query_limit': query_limit,
                 'user_type': user_type,
-                'upgrade_url': 'https://legal.loca.lt/'
+                'upgrade_url': 'https://legalmindver1.loca.lt/'
             }), 500
 
     # Handle conversation
@@ -724,7 +724,7 @@ def query():
                 'error_code': 'DATABASE_ERROR',
                 'query_count': query_count,
                 'query_limit': query_limit,
-                'upgrade_url': 'https://legal.loca.lt/'
+                'upgrade_url': 'https://legalmindver1.loca.lt/'
             }), 500
 
     # Save user message
@@ -743,7 +743,7 @@ def query():
             'error_code': 'DATABASE_ERROR',
             'query_count': query_count,
             'query_limit': query_limit,
-            'upgrade_url': 'https://legal.loca.lt/'
+            'upgrade_url': 'https://legalmindver1.loca.lt/'
         }), 500
 
     # Retrieve relevant legal documents
@@ -828,7 +828,7 @@ Dưới đây là lịch sử hội thoại trước đó:
             'error_code': 'GEMINI_ERROR',
             'query_count': query_count,
             'query_limit': query_limit,
-            'upgrade_url': 'https://legal.loca.lt/'
+            'upgrade_url': 'https://legalmindver1.loca.lt/'
         }), 500
 
     # Define related questions prompt
@@ -878,7 +878,7 @@ Bạn là chuyên gia tư vấn pháp luật Việt Nam. Dựa trên câu hỏi 
             'error_code': 'GEMINI_ERROR',
             'query_count': query_count,
             'query_limit': query_limit,
-            'upgrade_url': 'https://legal.loca.lt/'
+            'upgrade_url': 'https://legalmindver1.loca.lt/'
         }), 500
 
     related_questions = preprocess_related_questions(related_questions)
@@ -899,7 +899,7 @@ Bạn là chuyên gia tư vấn pháp luật Việt Nam. Dựa trên câu hỏi 
             'error_code': 'DATABASE_ERROR',
             'query_count': query_count,
             'query_limit': query_limit,
-            'upgrade_url': 'https://legal.loca.lt/'
+            'upgrade_url': 'https://legalmindver1.loca.lt/'
         }), 500
 
     try:
@@ -914,7 +914,7 @@ Bạn là chuyên gia tư vấn pháp luật Việt Nam. Dựa trên câu hỏi 
             'error_code': 'DATABASE_ERROR',
             'query_count': query_count,
             'query_limit': query_limit,
-            'upgrade_url': 'https://legal.loca.lt/'
+            'upgrade_url': 'https://legalmindver1.loca.lt/'
         }), 500
 
     memory.save_context({'question': question}, {'answer': answer})
@@ -1037,7 +1037,7 @@ def reset_user_query_count(user_id):
     if not user:
         return jsonify({'error': 'Người dùng không tồn tại'}), 404
     if user.get('account_type') == 'unlimited':
-        return jsonify({'error': 'Tài khoản không giới hạn không cần reset'}), 400
+        return jsonify({'error': 'Tài khoản không giới hạn không cần reset!'}), 400
     db.users.update_one(
         {'_id': ObjectId(user_id)},
         {'$set': {'query_count': 0, 'last_reset': datetime.utcnow()}}

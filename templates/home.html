@@ -55,7 +55,6 @@
                     </select>
                 </div>
                 <div class="footer-text">
-                    <div class="query-count"></div>
                     <p data-translate="appName">LegalMind</p>
                     <small data-translate="poweredBy">Được cung cấp bởi Công nghệ RAG</small>
                 </div>
@@ -151,6 +150,8 @@
                         </button>
                     </div>
                 </form>
+                 <p class="input-hint query-count">
+                        </p>
                 <p class="input-hint">
                     <span data-translate="inputHint">Nhấn Enter để gửi, Shift+Enter để xuống dòng</span>
                 </p>
@@ -552,7 +553,8 @@ function renderMessages() {
                                 </div>
                             </div>
                             <div class="source-meta">
-                                <div class="source-score">${source.distance.toFixed(4)} ${translate('matchScore')}</div>
+                                 <div class="source-score">${(1/(1+source.distance)*100).toFixed(4)} %</div>
+                                <!-- <div class="source-score">${(1/(1+source.distance)*100).toFixed(4)} ${translate('matchScore')}</div>-->
                             </div>
                         </div>
                     </div>

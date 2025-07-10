@@ -583,3 +583,34 @@
             padding-left: 0rem !important;
 
         }
+        /* Custom badge styling */
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.4em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        /* Pill-shaped badge */
+        .badge-pill {
+            border-radius: 10rem;
+        }
+
+        /* Warning badge (for limited account) */
+        .badge-warning {
+            color: #c0a167;
+            background-color: #fef9c3; /* Yellow/orange background */
+        }
+
+        /* Success badge (for other accounts) */
+        .badge-success {
+            color: #4e9067;
+            background-color: #dcfce7; /* Green background */
+        }
+
+ 
